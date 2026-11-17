@@ -101,12 +101,15 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
     content: "#smooth-content",
     smooth: 1.2, // seconds for the content to catch up with the native scroll
     effects: true,
-    smoothTouch: false, // phones keep their native momentum scrolling
+    // Phones get a light touch of smoothing too: it pins the content layer, which
+    // the nav mask needs (otherwise copy slides under the links on a phone).
+    smoothTouch: 0.1,
   })
+  ScrollTrigger.config({ ignoreMobileResize: true }) // no jump when the address bar hides
 
   // Each section's lines rise in as they come into view.
   gsap.utils.toArray(".sections section").forEach((section) => {
-    gsap.from(section.children, {
+    gsap.from([...section.children].filter((el) => !el.matches(".next")), {
       y: 40,
       opacity: 0,
       duration: 1,

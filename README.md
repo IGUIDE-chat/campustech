@@ -80,8 +80,9 @@ grep -n "TODO(campustech)" index.html
 - **The canvas parent (`.bg`) is exactly one screen and sits outside the
   scroll content.** The component sizes its canvas to its parent, and
   ScrollSmoother's transform would break `position: fixed` inside the content.
-- **Smooth scrolling** uses GSAP ScrollSmoother (`smooth: 1.2`); phones keep
-  native momentum scrolling. Section lines fade up as they enter the screen.
+- **Smooth scrolling** uses GSAP ScrollSmoother (`smooth: 1.2`; a light
+  `smoothTouch: 0.1` on phones, which also pins the content layer so the nav
+  mask works there). Section lines fade up as they enter the screen.
 - **Nav** is centred on the title's axis when one row fits clear of the cord (else centred in the space left of the cord; left-aligned on two rows,
   clear of the cord). It is visible while the page is still, fades out while
   scrolling, and returns half a second after scrolling stops.
@@ -93,10 +94,15 @@ grep -n "TODO(campustech)" index.html
 - **Team** fills rows of fixed-width columns, as many as fit: one column on
   phones, 2 per row from 560px, 3 from 820px, 4 (the cap) from 1080px; the last
   row is centred.
+- **Next-section links**: the hero and each section end with the next title in
+  small caps over a bobbing arrow (Products, Join, Team, Contact) for a quick
+  jump down the page.
 - **Link previews** sit centred above the hovered link text (below it when
   there is no room above).
 - **Light mode** is the pull cord at the top right (drag it down, click it, or
-  focus it and press Enter). The choice is remembered in `localStorage`. The
+  focus it and press Enter). Like a real pull switch, nothing changes while it
+  is held down; the theme switches on release. On touch screens the grab area
+  is wider than the knob and runs up the rope. The choice is remembered in `localStorage`. The
   neon tubes rely on glow and metal reflections that only read on dark, so light
   mode swaps them for `src/dither.js`: a soft trail behind the cursor rendered as
   crisp single-colour dots with an 8x8 Bayer dither, dissolving dot by dot when

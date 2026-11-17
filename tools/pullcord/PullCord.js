@@ -165,8 +165,8 @@ function PullCord({
   // Campus Tech change: a click or Enter plays out like a real pull. The stock
   // version toggled at once and nudged the knob, which the rope constraints
   // absorbed, so nothing visibly moved. Here the knob is held and pulled down
-  // past the toggle depth (switching the theme on the way, as a drag does),
-  // then released so the rope springs back with its own physics.
+  // past the toggle depth, then released so the rope springs back with its own
+  // physics; the theme switches on that release, as it does after a drag.
   const pulling = useRef(false);
   const scriptedPull = () => {
     if (reduce) {
@@ -185,8 +185,8 @@ function PullCord({
     dragging.current = true;
     target.current = { x: ANCHOR_X, y: REST_Y };
     wake.current();
-    // Release and make sure the theme switched, even if no frame ever ran
-    // (throttled or hidden tab), so a click can never be lost.
+    // Release and switch the theme, even if no frame ever ran (throttled or
+    // hidden tab), so a click can never be lost.
     const finish = () => {
       if (done) return;
       done = true;
@@ -207,10 +207,6 @@ function PullCord({
       const k = Math.min(1, t / DOWN_MS);
       const pull = depth * (1 - Math.pow(1 - k, 3));
       target.current = { x: ANCHOR_X, y: REST_Y + pull };
-      if (!toggled && pull >= stretchToggle) {
-        toggled = true;
-        doToggle();
-      }
       if (t < DOWN_MS + HOLD_MS) requestAnimationFrame(tick);
       else finish();
     };
@@ -230,15 +226,19 @@ function PullCord({
     const maxD = REST_Y + stretchMax;
     const k = dist > maxD ? maxD / dist : 1;
     target.current = { x: ANCHOR_X + rx * k, y: ry * k };
+    // Campus Tech change: pulling past the toggle depth only arms the switch;
+    // nothing changes while the cord is held down. The theme switches on release
+    // (onPanEnd), like a real pull-chain switch.
     const clickAt = Math.min(stretchToggle, stretchMax - 1);
-    if (!clicked.current && dist - REST_Y >= clickAt) {
-      clicked.current = true;
-      doToggle();
-    }
+    if (!clicked.current && dist - REST_Y >= clickAt) clicked.current = true;
   };
   const onPanEnd = () => {
     const { maxVelocity } = cfgRef.current;
     dragging.current = false;
+    if (clicked.current) {
+      clicked.current = false;
+      doToggle();
+    }
     const pts = nodesRef.current;
     const p = pts[pts.length - 1];
     const vx = p.x - p.ox;

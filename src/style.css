@@ -75,7 +75,7 @@ h2 {
   /* Pull cord (light mode switch): position and colour via its CSS variables. */
   --pullcord-top: 0px;
   --pullcord-right: clamp(1.25rem, 6vw, 5rem);
-  --pullcord-z: 20;
+  --pullcord-z: 40; /* above every other layer (nav 10, toggle and previews 30) */
   --pullcord-ink: var(--muted);
 }
 
@@ -774,3 +774,75 @@ body.no-tubes .bg {
   text-underline-offset: 3px;
 }
 
+
+/* Next-section link at the bottom of the hero and each section: the next title in
+   small caps over a gently bobbing arrow; a quick jump down the page. */
+.sections section {
+  position: relative;
+}
+
+#smooth-content a.next {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(14px, 3.5vh, 28px);
+  width: fit-content;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-left: 0.2em; /* balance the letter-spacing after the last letter */
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted);
+  text-shadow: 0 0 20px var(--halo);
+  transition: color 0.2s;
+}
+
+#smooth-content a.next:hover,
+#smooth-content a.next:focus-visible {
+  color: var(--ink);
+}
+
+.next svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: next-bob 2s ease-in-out infinite;
+}
+
+@keyframes next-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .next svg {
+    animation: none;
+  }
+}
+
+/* Touch screens: a finger is wider than the knob, and people grab the rope just
+   above it. Widen the grab area and run it up the rope, so a pull never lands
+   on the page underneath. */
+@media (pointer: coarse) {
+  .pullcord-knob::before {
+    content: "";
+    position: absolute;
+    inset: -80px -14px -16px;
+  }
+}
