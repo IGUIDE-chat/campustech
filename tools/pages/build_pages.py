@@ -18,13 +18,21 @@ EMAIL = "techadmin.campustech@gmail.com"
 APPLY = "https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform"
 PITCH = "https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform"
 UPDATED = "2026-11-17"
+
+
+def pretty(path):
+    """Public URL path as Cloudflare Pages serves it: no ".html", no "index"."""
+    if path.endswith("index.html"):
+        return path[: -len("index.html")]
+    return path[:-5] if path.endswith(".html") else path
+
 PUBLISHER = {"@type": "Organization", "@id": SITE + "#org", "name": ORG_NAME, "url": SITE}
 
 
 def page(path, title, description, body, active="", schema=None, og_type="website", noindex=False, absolute=False):
     depth = path.count("/")
     up = "/" if absolute else "../" * depth
-    url = SITE + ("" if path.endswith("index.html") and depth == 0 else path.replace("index.html", ""))
+    url = SITE + pretty(path)
     robots = "noindex, follow" if noindex else "index, follow, max-image-preview:large"
     ld = ""
     for block in schema or []:
@@ -116,7 +124,7 @@ def breadcrumbs(*items):
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         "itemListElement": [
-            {"@type": "ListItem", "position": i + 1, "name": name, "item": SITE + href}
+            {"@type": "ListItem", "position": i + 1, "name": name, "item": SITE + pretty(href)}
             for i, (name, href) in enumerate(items)
         ],
     }
@@ -130,7 +138,7 @@ def article_schema(path, headline, description):
         "description": description,
         "datePublished": UPDATED,
         "dateModified": UPDATED,
-        "mainEntityOfPage": SITE + path,
+        "mainEntityOfPage": SITE + pretty(path),
         "image": SITE + "assets/og.png",
         "author": PUBLISHER,
         "publisher": {**PUBLISHER, "logo": {"@type": "ImageObject", "url": SITE + "assets/apple-touch-icon.png"}},
@@ -468,7 +476,7 @@ NOT_INDEXED = {"404.html", "coming-soon.html"}
 # ---- Sitemap and llms.txt follow the pages above ---------------------------- #
 
 def sitemap():
-    urls = [""] + [p.replace("index.html", "") for p in PAGES if p not in NOT_INDEXED]
+    urls = [""] + [pretty(p) for p in PAGES if p not in NOT_INDEXED]
     rows = "".join(
         f"  <url><loc>{SITE}{u}</loc><lastmod>{UPDATED}</lastmod></url>\n" for u in urls
     )
@@ -490,15 +498,15 @@ def llms_txt():
         "",
         "## Pages",
         f"- [Home]({SITE}): products, recruiting, team and contact",
-        f"- [Past]({SITE}past.html): past products and presidents",
+        f"- [Past]({SITE}past): past products and presidents",
         f"- [Articles]({SITE}articles/): news and guides",
     ]
     for a in ARTICLES:
-        lines.append(f"- [{a['title']}]({SITE}articles/{a['slug']}.html): {a['desc']}")
+        lines.append(f"- [{a['title']}]({SITE}articles/{a['slug']}): {a['desc']}")
     lines += [
-        f"- [FAQ]({SITE}faq.html): short answers about the organization",
-        f"- [Privacy Policy]({SITE}privacy.html)",
-        f"- [Terms of Use]({SITE}terms.html)",
+        f"- [FAQ]({SITE}faq): short answers about the organization",
+        f"- [Privacy Policy]({SITE}privacy)",
+        f"- [Terms of Use]({SITE}terms)",
         "",
     ]
     return "\n".join(lines)
@@ -539,7 +547,7 @@ def llms_full():
     for path, html in PAGES.items():
         if path in NOT_INDEXED or path == "past.html":
             continue
-        parts += ["", "---", "", f"# {SITE}{path.replace('index.html', '')}", "", text_of(html)]
+        parts += ["", "---", "", f"# {SITE}{pretty(path)}", "", text_of(html)]
     return "\n".join(parts) + "\n"
 
 
