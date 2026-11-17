@@ -93,6 +93,10 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <main class="sections">
 {body}
   </main>
+  <footer class="site-footer">
+    <p>© 2026 Campus Tech @ UIUC · <a href="{up}articles/">Articles</a> · <a href="{up}privacy.html">Privacy</a> · <a href="{up}terms.html">Terms</a></p>
+    <p>A registered student organization at the University of Illinois Urbana-Champaign; not an official University website. Background by <a href="https://codepen.io/soju22/pen/qEbdVjK" target="_blank" rel="noopener">Kevin Levron</a>, CC BY-NC-SA 4.0.</p>
+  </footer>
   </div>
   </div>
 

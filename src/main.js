@@ -165,6 +165,12 @@ function highlight() {
 // have no hero, so they always get it).
 const hasHero = !!document.querySelector(".hero")
 const wrapper = document.getElementById("smooth-wrapper")
+// Keep the content fade under the nav as tall as the nav (it wraps to two rows
+// on narrow screens).
+const syncNavHeight = () =>
+  document.documentElement.style.setProperty("--nav-h", `${nav.offsetHeight}px`)
+new ResizeObserver(syncNavHeight).observe(nav)
+syncNavHeight()
 function updateBackdrop() {
   const scrolled = !hasHero || window.scrollY > window.innerHeight * 0.5
   nav.classList.toggle("scrolled", scrolled)
