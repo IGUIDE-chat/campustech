@@ -1,0 +1,20 @@
+# Campus Tech @ University of Illinois Urbana-Champaign
+
+> Campus Tech is a registered student organization at the University of Illinois Urbana-Champaign (UIUC) that builds products for campus life. Registered as an RSO in November 2026.
+
+Key facts:
+- Products: AI Chat (https://iguide.chat/chat) for questions about UIUC; Dorms (https://iguide.chat/dorms), a guide for comparing UIUC residence halls; 3D Room Scan; apartment comparison; websites for registered student organizations; tools for local businesses.
+- Officers: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director), Chris Lopez (Treasurer). Advisor: Skylar Chu.
+- Recruiting: Fall 2026 Round 1, roles in programming, design, marketing, business and administration. Application plus short interview. Deadline 11:59 PM CT, Sunday November 29, 2026. Apply: https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform
+- Product ideas from any student: https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform
+- Contact: techadmin.campustech@gmail.com
+
+## Pages
+- [Home](https://campustech.iguide.chat/): products, recruiting, team and contact
+- [Past](https://campustech.iguide.chat/past.html): past products and presidents
+- [Articles](https://campustech.iguide.chat/articles/): news and guides
+- [Introducing Campus Tech @ UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech.html): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
+- [Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply](https://campustech.iguide.chat/articles/fall-2026-recruiting.html): Campus Tech @ UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+- [Have an Idea for a Campus Product? Pitch It to Campus Tech](https://campustech.iguide.chat/articles/pitch-your-idea.html): Campus Tech @ UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
+- [Privacy Policy](https://campustech.iguide.chat/privacy.html)
+- [Terms of Use](https://campustech.iguide.chat/terms.html)

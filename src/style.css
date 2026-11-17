@@ -1,0 +1,616 @@
+/* ---- Original page (neon-3d-tubes-cursor-trail/style.css), unchanged ---- */
+
+body, html, #app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  touch-action: none;
+}
+
+#app {
+  height: 100%;
+  font-family: "Montserrat", serif;
+}
+
+#app a {
+  text-decoration: none;
+  color: #fff;
+}
+
+.hero {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+h1, h2, p {
+  margin: 0;
+  padding: 0;
+  color: white;
+  text-shadow: 0 0 20px rgba(13, 13, 18, 1);
+  line-height: 100%;
+  user-select: none;
+}
+
+h1 {
+  font-size: 80px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 60px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+#canvas {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+/* ---- CampusTech additions ------------------------------------------------ */
+
+/* Three solid colours for all text and the pull cord, per theme:
+   --ink (headings, names, links), --muted (body copy, nav, mission, cord),
+   --faint (credits, placeholder underlines). */
+:root {
+  --page: #0d0d12;
+  --ink: #f4f4f6;
+  --muted: #98989b;
+  --faint: #5e5e62;
+  --halo: rgba(13, 13, 18, 1); /* text shadow, keeps copy readable over the tubes */
+
+  /* Pull cord (light mode switch): position and colour via its CSS variables. */
+  --pullcord-top: 0px;
+  --pullcord-right: clamp(1.25rem, 6vw, 5rem);
+  --pullcord-z: 20;
+  --pullcord-ink: var(--muted);
+}
+
+:root[data-theme="light"] {
+  --page: #fff;
+  --ink: #2d2e36;
+  --muted: #818286;
+  --faint: #bcbcbf;
+  --halo: rgba(255, 255, 255, 1);
+}
+
+/* The page scrolls past the first screen, so vertical panning stays native;
+   touches are still tracked through touch events in tubes.js. */
+body {
+  touch-action: pan-y;
+  background: var(--page);
+  font-family: "Montserrat", sans-serif;
+  color: var(--ink);
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+h1,
+h2,
+p {
+  color: var(--ink);
+  text-shadow: 0 0 20px var(--halo);
+}
+
+#app a {
+  color: var(--ink);
+}
+
+/* #app stays exactly one screen: the tubes size their canvas to it. */
+#app {
+  height: 100vh;
+  height: 100svh;
+}
+
+.bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  /* The bloom pass paints pure black; lighten lets the off-black page show
+     through there while the bright tubes stay as they are. */
+  mix-blend-mode: lighten;
+}
+
+#canvas {
+  pointer-events: none;
+}
+
+/* ScrollSmoother pins the wrapper; keep it above the tubes and see-through. */
+#smooth-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* Same size and weight as the link under the title on the original page. */
+.tagline {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Small screens: keep the original proportions. */
+@media (max-width: 520px) {
+  h1 {
+    font-size: 16vw;
+  }
+
+  h2 {
+    font-size: 12vw;
+  }
+}
+
+/* Pull cord: flat knob in the main text colour (white on dark, charcoal on
+   light), no gradient, outline or shadow. The rope keeps the muted tone. */
+#cord svg g[filter] {
+  filter: none;
+}
+
+#cord svg circle {
+  fill: var(--ink);
+  stroke: none;
+}
+
+/* Nav: visible while the page is still, fades out while scrolling. */
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 18px clamp(16px, 4vw, 40px);
+  /* Leave room on the right for the pull cord. */
+  padding-right: calc(var(--pullcord-right) + 2.5rem);
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px var(--halo);
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav.show {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Past the first screen, content scrolls under the nav. With smooth scrolling
+   the content layer is pinned to the viewport, so its top strip is masked out:
+   headings vanish under the links while the tubes (a separate layer) stay
+   visible. Without it (reduced motion, some touch setups) a band in the page
+   colour is painted behind the nav instead. On the hero neither applies. */
+html.pinned.nav-scrolled #smooth-wrapper {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 56px, #000 88px);
+  mask-image: linear-gradient(to bottom, transparent 56px, #000 88px);
+}
+
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  background: linear-gradient(to bottom, var(--page) calc(100% - 28px), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+html:not(.pinned) .nav.scrolled::before {
+  opacity: 1;
+}
+
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav a:hover,
+.nav a.active {
+  color: var(--ink);
+}
+
+/* Full-size screens: centred over the centred hero, clear of the cord on both sides. */
+@media (min-width: 721px) {
+  .nav {
+    justify-content: center;
+    padding-left: calc(var(--pullcord-right) + 2.5rem);
+  }
+}
+
+.nav-links {
+  display: flex;
+  gap: clamp(12px, 3vw, 28px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav-links::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .nav {
+    justify-content: flex-start;
+    padding-left: 16px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .nav-links {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav {
+    padding-left: 12px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 6px 9px;
+  }
+}
+
+/* Sections: plain text over the tubes, one screen each. */
+.sections {
+  position: relative;
+}
+
+.sections section {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 80px 16px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.sections h2 {
+  font-size: clamp(40px, 9vw, 60px);
+  margin-bottom: 10px;
+}
+
+.sections p,
+.sections li {
+  font-size: clamp(16px, 2.4vw, 20px);
+  line-height: 1.5;
+  color: var(--muted);
+  text-shadow: 0 0 20px var(--halo);
+  overflow-wrap: anywhere;
+}
+
+.sections ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.sections li b,
+.sections li > a {
+  font-weight: 700;
+  color: var(--ink);
+  margin-right: 12px;
+}
+
+.sections a {
+  color: var(--ink);
+  text-underline-offset: 4px;
+}
+
+/* Small heading inside a section (e.g. Past: Products / Presidents). */
+.sections .label {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sections .note {
+  font-size: 14px;
+}
+
+.sections .credit {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.sections .credit a {
+  color: inherit;
+}
+
+/* Social icons next to a name (Team). Same three-colour palette: muted, ink on hover.
+   The icons hang outside the name (absolutely positioned) so the name itself stays
+   centred exactly like the names without icons; they don't shift the column. */
+.sections li b.has-social {
+  position: relative;
+}
+
+/* Team is stacked on every screen (name above role), so the hanging icons always
+   have free space beside the name and every name shares the same centre line. */
+#team li > b,
+#team li > a {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.sections .social {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  translate: 0 -50%;
+  display: inline-flex;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.sections .social a {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.sections .social a:hover,
+.sections .social a:focus-visible {
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.sections .social svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+@media (max-width: 520px) {
+  /* Slightly bigger tap targets on phones. */
+  .sections .social {
+    gap: 12px;
+  }
+
+  .sections .social a {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Narrow screens: tighter sections, product names on their own line. */
+@media (max-width: 520px) {
+  .sections section {
+    padding: 72px 20px;
+  }
+
+  .sections li b,
+  .sections li > a {
+    display: block;
+    margin-right: 0;
+  }
+}
+
+/* Open seat link ("Apply now"): dashed underline in the link's own colour. */
+.sections a.dashed {
+  text-decoration: underline dashed;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1px;
+}
+
+/* Placeholders: a faint dashed underline so they are easy to spot and replace. */
+.ph {
+  text-decoration: underline dashed var(--faint);
+  text-underline-offset: 5px;
+}
+
+/* ---- Light mode (pulled cord) -------------------------------------------- */
+
+/* Light mode: the tubes' layer is removed (display: none also pauses their
+   renderer) and the dither trail takes over. */
+.trail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+}
+
+:root[data-theme="light"] .trail {
+  display: block;
+}
+
+:root[data-theme="light"] .bg {
+  display: none;
+}
+
+/* Static stand-in when the effect cannot run or motion is reduced. */
+body.no-tubes {
+  background:
+    radial-gradient(60vw 50vh at 25% 25%, rgba(249, 103, 251, 0.22), transparent 70%),
+    radial-gradient(50vw 50vh at 75% 35%, rgba(105, 88, 213, 0.28), transparent 70%),
+    radial-gradient(60vw 40vh at 50% 85%, rgba(83, 188, 40, 0.16), transparent 70%), var(--page);
+  background-attachment: fixed;
+}
+
+body.no-tubes .bg {
+  display: none;
+}
+
+/* ---- Link preview (hover on an outbound link) ----------------------------- */
+
+.preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: 320px;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--faint);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--page);
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.96;
+  transition: opacity 0.18s ease, scale 0.18s ease;
+  will-change: transform;
+}
+
+.preview.show {
+  opacity: 1;
+  scale: 1;
+}
+
+.preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* ---- Sub pages (past.html) ------------------------------------------------ */
+
+/* No hero on sub pages: the first section starts right away. */
+.subpage .sections section:first-child {
+  padding-top: 120px;
+}
+
+/* ---- Reading pages (privacy, terms, articles) ------------------------------ */
+
+.sections section.prose {
+  display: block;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 120px 20px 96px;
+  text-align: left;
+}
+
+.prose h1 {
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1.15;
+  text-transform: none;
+  margin-bottom: 12px;
+}
+
+.prose h2 {
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 700;
+  text-transform: none;
+  line-height: 1.3;
+  margin: 36px 0 10px;
+}
+
+.sections .prose p,
+.sections .prose li {
+  font-size: 17px;
+  line-height: 1.7;
+  margin: 0 0 14px;
+  text-align: left;
+}
+
+.sections .prose ul,
+.sections .prose ol {
+  display: block;
+  margin: 0 0 14px;
+  padding-left: 22px;
+  list-style: disc;
+}
+
+.sections .prose ol {
+  list-style: decimal;
+}
+
+.prose .meta {
+  font-size: 14px;
+  color: var(--faint);
+}
+
+.prose .crumbs {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.prose .crumbs a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.prose .cards {
+  display: grid;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.prose .cards h2 {
+  margin: 0 0 4px;
+}
+
+.prose .cards h2 a {
+  text-decoration: none;
+}
+
+.prose .cards h2 a:hover {
+  text-decoration: underline;
+}
+
+.prose dt {
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 16px;
+}
+
+.prose dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+
+/* The original effect makes headings and paragraphs unselectable; reading pages
+   should allow copying text. */
+.prose,
+.prose * {
+  user-select: text;
+}

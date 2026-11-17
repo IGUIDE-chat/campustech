@@ -1,0 +1,27 @@
+# Campus Tech @ UIUC: everything here is public; search engines and AI crawlers welcome.
+User-agent: *
+Allow: /
+
+# AI search and assistants (listed explicitly so they are clearly allowed)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://campustech.iguide.chat/sitemap.xml

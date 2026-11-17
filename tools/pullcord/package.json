@@ -1,0 +1,15 @@
+{
+  "name": "campustech-pullcord-build",
+  "private": true,
+  "type": "module",
+  "description": "Bundles the pullcord light-mode switch (React + pullcord) into ../../vendor/pullcord.js and .css.",
+  "scripts": {
+    "build": "esbuild entry.jsx --bundle --minify --format=iife --target=es2019 --define:process.env.NODE_ENV=\\\"production\\\" --jsx=automatic --outfile=../../vendor/pullcord.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "pullcord": "0.1.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}
