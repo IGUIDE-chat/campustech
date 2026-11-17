@@ -22,7 +22,7 @@ nothing gates the deploy, so **`main` is production**. Python scripts under
    `python tools/stamp_assets.py`. Cloudflare caches CSS and JS for 4 hours, so
    every local CSS/JS URL carries a content hash (`?v=...`). CI fails on a stale
    hash.
-3. **Don't hand-edit generated files.** `past.html`, `faq.html`,
+3. **Don't hand-edit generated files.** `cases.html`, `past.html`, `faq.html`,
    `privacy.html`, `terms.html`, `articles/*`, `404.html`, `coming-soon.html`,
    `sitemap.xml`, `llms.txt` and `llms-full.txt` come from
    `tools/pages/build_pages.py`. Edit the script, then run it; CI rebuilds and

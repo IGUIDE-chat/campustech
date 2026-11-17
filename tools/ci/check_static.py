@@ -274,6 +274,18 @@ for target in ("products", "join", "team", "contact"):
     if f'class="next" href="#{target}"' not in index:
         fail("next-links", f"next-section link to #{target} is missing")
 
+# --- Cases: a tab of sites we built (CAACI first). Every page's nav links it,
+#     and "RSO websites" in Products points there.
+cases = ROOT / "cases.html"
+if not cases.exists() or "https://caaciorg.com" not in cases.read_text(encoding="utf-8"):
+    fail("cases", "cases.html is missing or no longer lists CAACI (caaciorg.com)")
+for p in PAGES:
+    nav = re.search(r'<nav class="nav".*?</nav>', p.read_text(encoding="utf-8"), re.S)
+    if not nav or not re.search(r'href="[^"]*cases\.html"[^>]*>Cases</a>', nav.group(0)):
+        fail("cases", f"{rel(p)}: nav has no Cases link")
+if '<a href="./cases.html">RSO websites</a>' not in index:
+    fail("cases", "Products: 'RSO websites' does not link to the cases page")
+
 if failures:
     print(f"{len(failures)} static check(s) failed:\n")
     print("\n".join(failures))

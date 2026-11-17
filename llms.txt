@@ -11,6 +11,7 @@ Key facts:
 
 ## Pages
 - [Home](https://campustech.iguide.chat/): products, recruiting, team and contact
+- [Cases](https://campustech.iguide.chat/cases): websites built for organizations, starting with CAACI (https://caaciorg.com)
 - [Past](https://campustech.iguide.chat/past): past products and presidents
 - [Articles](https://campustech.iguide.chat/articles/): news and guides
 - [Introducing Campus Tech at UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.

@@ -26,7 +26,7 @@ SLOW = float(os.environ.get("SLOW", "0"))
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP = {"viewport": {"width": 1280, "height": 800}}
 PHONE = {"viewport": {"width": 375, "height": 812}, "is_mobile": True, "has_touch": True, "device_scale_factor": 2}
-PAGES = ["/", "/past.html", "/faq.html", "/privacy.html", "/terms.html", "/articles/", "/articles/pitch-your-idea.html", "/404.html", "/coming-soon.html"]
+PAGES = ["/", "/cases.html", "/past.html", "/faq.html", "/privacy.html", "/terms.html", "/articles/", "/articles/pitch-your-idea.html", "/404.html", "/coming-soon.html"]
 
 # Lines that animate on the home page: section children (not the next link), list items one by one.
 LINES_JS = """[...document.querySelectorAll('.sections section')].flatMap(s => [...s.children]

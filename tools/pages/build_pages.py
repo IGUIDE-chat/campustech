@@ -47,6 +47,7 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
     nav = (
         nav_link(home, "Home", "home")
         + nav_link(f"{home}#products", "Products")
+        + nav_link(f"{up}cases.html", "Cases", "cases")
         + nav_link(f"{home}#join", "Join")
         + nav_link(f"{home}#team", "Team")
         + nav_link(f"{up}past.html", "Past", "past")
@@ -208,6 +209,27 @@ PAGES["past.html"] = page(
     </section>""",
     active="past",
     schema=[breadcrumbs(("Home", ""), ("Past", "past.html"))],
+)
+
+PAGES["cases.html"] = page(
+    "cases.html",
+    "Cases · Campus Tech at UIUC",
+    "Websites Campus Tech at UIUC has built for organizations, starting with CAACI, the Chinese American Association of Central Illinois.",
+    """    <section id="cases">
+      <h1 class="page-title">Cases</h1>
+      <p>Websites we have built for organizations. Every RSO can get one.</p>
+      <ul>
+        <li><a href="https://caaciorg.com" target="_blank" rel="noopener">CAACI</a><span>Chinese American Association of Central Illinois · caaciorg.com</span></li>
+      </ul>
+      <p>Bilingual pages in English and 中文, memberships and family plans, event registration and volunteers, a business directory, and a back office where staff edit text and photos without code.</p>
+      <ul>
+        <li><a href="mailto:"""
+    + EMAIL
+    + """?subject=A%20website%20for%20our%20RSO">Your RSO</a><span>Get a site like this</span></li>
+      </ul>
+    </section>""",
+    active="cases",
+    schema=[breadcrumbs(("Home", ""), ("Cases", "cases.html"))],
 )
 
 PAGES["privacy.html"] = page(
@@ -536,6 +558,7 @@ def llms_txt():
         "",
         "## Pages",
         f"- [Home]({SITE}): products, recruiting, team and contact",
+        f"- [Cases]({SITE}cases): websites built for organizations, starting with CAACI (https://caaciorg.com)",
         f"- [Past]({SITE}past): past products and presidents",
         f"- [Articles]({SITE}articles/): news and guides",
     ]
