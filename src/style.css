@@ -238,13 +238,31 @@ p {
    headings vanish under the links while the tubes (a separate layer) stay
    visible. Without it (reduced motion, some touch setups) a band in the page
    colour is painted behind the nav instead. On the hero neither applies. */
-/* Always on: at the top nothing sits in this strip (the tubes are a separate
-   layer), and once scrolling starts the hero title must already slide under it. */
+/* Only while the nav is showing (it hides during scrolling): the strip under it
+   fades in together with the nav, animated through two registered properties so
+   the content's top edge never pops. */
+@property --nav-fade {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --nav-soft {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 html.pinned #smooth-wrapper {
-  /* --nav-h is the nav's real height (set by main.js), so a wrapped two-row nav
-     is covered too. */
-  -webkit-mask-image: linear-gradient(to bottom, transparent var(--nav-h, 60px), #000 calc(var(--nav-h, 60px) + 32px));
-  mask-image: linear-gradient(to bottom, transparent var(--nav-h, 60px), #000 calc(var(--nav-h, 60px) + 32px));
+  /* 0px / 0px = no mask at all; --nav-h is the nav's real height (main.js). */
+  -webkit-mask-image: linear-gradient(to bottom, transparent var(--nav-fade), #000 calc(var(--nav-fade) + var(--nav-soft)));
+  mask-image: linear-gradient(to bottom, transparent var(--nav-fade), #000 calc(var(--nav-fade) + var(--nav-soft)));
+  transition: --nav-fade 0.3s ease, --nav-soft 0.3s ease;
+}
+
+html.pinned.nav-shown #smooth-wrapper {
+  --nav-fade: var(--nav-h, 60px);
+  --nav-soft: 32px;
 }
 
 .nav::before {

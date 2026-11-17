@@ -208,27 +208,33 @@ function updateBackdrop() {
   )
 }
 
+/** Show or hide the nav; the content mask under it follows (html.nav-shown). */
+function setNavShown(shown) {
+  nav.classList.toggle("show", shown)
+  document.documentElement.classList.toggle("nav-shown", shown)
+}
+
 function onScroll() {
   updateBackdrop()
-  nav.classList.remove("show")
+  setNavShown(false)
   clearTimeout(settleTimer)
   settleTimer = setTimeout(() => {
     highlight()
-    nav.classList.add("show")
+    setNavShown(true)
   }, SETTLE_MS)
 }
 
 window.addEventListener("scroll", onScroll, { passive: true })
 highlight()
 updateBackdrop()
-nav.classList.add("show")
+setNavShown(true)
 
 // ---- Link previews: hovering an outbound link shows a screenshot of the site ----
 // Screenshots come from tools/previews/capture.py (most sites refuse iframes).
 
+const siteRoot = new URL("../", import.meta.url)
 if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
   // Resolved from this script, so pages in sub folders (articles/) find it too.
-  const siteRoot = new URL("../", import.meta.url)
   fetch(new URL("assets/previews/manifest.json", siteRoot))
     .then((response) => (response.ok ? response.json() : {}))
     .then((manifest) => {
@@ -265,7 +271,8 @@ function setUpPreviews(manifest) {
 
   document.addEventListener("pointerover", (event) => {
     const link = event.target.closest("a[href]")
-    const src = link && manifest[link.href]
+    // data-preview (e.g. the coming-soon cards) wins over the screenshot manifest.
+    const src = link && (link.dataset.preview ? new URL(link.dataset.preview, siteRoot).href : manifest[link.href])
     if (!src || link === active) return
     active = link
     img.src = src
