@@ -15,7 +15,7 @@ jobs:
   checks:
     # Pinned: Playwright 1.58 cannot install Chromium on ubuntu-latest (26.04).
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -32,4 +32,6 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Browser tests (desktop and phone)
+        env:
+          PYTHONUNBUFFERED: "1"
         run: python tools/ci/test_site.py

@@ -11,6 +11,7 @@ import http.server
 import socketserver
 import sys
 import threading
+import time
 import traceback
 from pathlib import Path
 
@@ -570,12 +571,13 @@ def main():
         for fn in TESTS:
             if only and fn.__name__ not in only:
                 continue
+            started = time.monotonic()
             try:
                 fn(site)
-                print(f"  ok    {fn.__name__}")
+                print(f"  ok    {fn.__name__} ({time.monotonic() - started:.0f}s)", flush=True)
             except Exception as e:  # noqa: BLE001 - report every failure, keep going
                 failed.append(fn.__name__)
-                print(f"  FAIL  {fn.__name__}: {e}")
+                print(f"  FAIL  {fn.__name__} ({time.monotonic() - started:.0f}s): {e}", flush=True)
                 if not isinstance(e, AssertionError):
                     traceback.print_exc()
         browser.close()
