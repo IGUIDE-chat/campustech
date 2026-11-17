@@ -429,15 +429,16 @@ html:not(.pinned) .nav.scrolled::before {
   margin: 0 auto;
 }
 
-/* Wide screens: several people per row (4 + 3), each a fixed-width column so the
-   names line up; the last row stays centred. */
-@media (min-width: 1080px) {
+/* From 560px wide, people sit side by side in fixed-width columns: as many per
+   row as fit (2 on large phones and small tablets, 3 on tablets, 4 on laptops and
+   up, capped at 4), and the last row stays centred. Below 560px: one column. */
+@media (min-width: 560px) {
   #team ul {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 32px 40px;
-    max-width: 1040px;
+    gap: 28px 40px;
+    max-width: 1000px; /* 4 x 220px + 3 x 40px */
   }
 
   #team li {

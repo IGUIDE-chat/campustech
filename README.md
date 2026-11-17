@@ -89,8 +89,9 @@ grep -n "TODO(campustech)" index.html
   each line. The small icon at the bottom left of the first screen
   switches between them (remembered in `localStorage`); `?hero=left` or
   `?hero=center` overrides it for one visit.
-- **Team** is one column on phones and tablets, and rows of four (4 + 3,
-  centred) from 1080px wide.
+- **Team** fills rows of fixed-width columns, as many as fit: one column on
+  phones, 2 per row from 560px, 3 from 820px, 4 (the cap) from 1080px; the last
+  row is centred.
 - **Link previews** sit centred above the hovered link text (below it when
   there is no room above).
 - **Light mode** is the pull cord at the top right (drag it down, click it, or
