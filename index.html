@@ -35,9 +35,14 @@
   <!-- Apply the remembered theme before first paint so light mode does not flash dark. -->
   <script>
     try { if (localStorage.getItem("campustech-theme") === "light") document.documentElement.dataset.theme = "light" } catch (e) {}
-    // Hero alignment: centred by default; "left" starts all three lines at CAMPUS's
-    // left edge. Set by the toggle at the bottom left (remembered) or ?hero=left|center.
-    try { if ((new URLSearchParams(location.search).get("hero") || localStorage.getItem("campustech-hero")) === "left") document.documentElement.classList.add("hero-left") } catch (e) {}
+    // Hero alignment: by default all three lines start at CAMPUS's left edge;
+    // "center" centres each line. Set by the toggle at the bottom left (remembered)
+    // or ?hero=left|center.
+    (function () {
+      var h = new URLSearchParams(location.search).get("hero")
+      try { h = h || localStorage.getItem("campustech-hero") } catch (e) {}
+      if (h !== "center") document.documentElement.classList.add("hero-left")
+    })()
   </script>
   <!-- Loading screen: only appears if the page takes longer than ~0.35s, so fast
        loads never see it; hidden on window load (8s safety cut-off). Inline so it

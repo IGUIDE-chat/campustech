@@ -162,7 +162,7 @@ p {
   text-align: center; /* TECH is a block inside the heading; centre it under CAMPUS */
 }
 
-/* Variant (?hero=left): all three lines start at CAMPUS's left edge; the block is
+/* Default (html.hero-left): all three lines start at CAMPUS's left edge; the block is
    still centred on the page. */
 .hero-left .hero-text {
   align-items: flex-start;

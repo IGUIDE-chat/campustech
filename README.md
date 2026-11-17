@@ -84,8 +84,9 @@ grep -n "TODO(campustech)" index.html
 - **Nav** is centred on the title's axis when one row fits clear of the cord (else centred in the space left of the cord; left-aligned on two rows,
   clear of the cord). It is visible while the page is still, fades out while
   scrolling, and returns half a second after scrolling stops.
-- **Hero alignment**: centred by default, or all three lines starting at
-  CAMPUS's left edge. The small icon at the bottom left of the first screen
+- **Hero alignment**: by default all three lines start at CAMPUS's left
+  edge (the block itself stays centred on the page); the other layout centres
+  each line. The small icon at the bottom left of the first screen
   switches between them (remembered in `localStorage`); `?hero=left` or
   `?hero=center` overrides it for one visit.
 - **Team** is one column on phones and tablets, and rows of four (4 + 3,
