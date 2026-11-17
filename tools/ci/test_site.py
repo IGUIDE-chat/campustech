@@ -396,10 +396,11 @@ def step_scroll(page, direction, step=80):
             """dir => { for (const el of window.__lines) { const r = el.getBoundingClientRect();
             const on = r.bottom > 0 && r.top < innerHeight; const o = +getComputedStyle(el).opacity; const prev = window.__last.get(el);
             if (on && prev && prev.on && o < prev.o - 0.05) window.__dropped.push(el.textContent.trim().slice(0, 20));
-            if (on && !window.__seen.has(el)) { window.__seen.add(el); if (o > 0.95 && window.__wasHidden.has(el)) window.__seenVisible++ }
+            if (on && !window.__seen.has(el)) { window.__seen.add(el); if (o > 0.95 && window.__wasHidden.has(el)) { window.__seenVisible++; (window.__early = window.__early || []).push(el.textContent.trim().slice(0, 18) + ' top=' + Math.round(r.top)) } }
             window.__last.set(el, { on, o }) } }""",
             direction,
         )
+    page.early = page.evaluate("window.__early || []")
     return page.evaluate("[window.__dropped, window.__seen.size, window.__seenVisible]")
 
 
@@ -411,6 +412,15 @@ def visible_lines_ok(page, timeout=10000):
         f"""() => {LINES_JS}.filter(el => {{ const r = el.getBoundingClientRect(); return r.bottom > innerHeight * 0.1 && r.top < innerHeight * 0.9 }})
         .every(el => +getComputedStyle(el).opacity > 0.99)""",
         timeout=timeout,
+    )
+
+
+def stuck_lines(page):
+    """Diagnostics: lines inside the 10-90% band that are not fully visible."""
+    return page.evaluate(
+        f"""{LINES_JS}.filter(el => {{ const r = el.getBoundingClientRect(); return r.bottom > innerHeight * 0.1 && r.top < innerHeight * 0.9 }})
+        .filter(el => +getComputedStyle(el).opacity <= 0.99)
+        .map(el => el.textContent.trim().slice(0, 18) + ' op=' + (+getComputedStyle(el).opacity).toFixed(2) + ' top=' + Math.round(el.getBoundingClientRect().top))"""
     )
 
 
@@ -427,7 +437,7 @@ def lines_animate_in_view_both_directions(site):
         assert not dropped, f"{device_name} scrolling up: lines faded while on screen: {dropped[:5]}"
         assert seen >= 20, f"{device_name}: only {seen} lines checked"
         # Of the lines hidden when the upward pass starts, none may have finished animating before it appears.
-        assert seen_visible <= 1, f"{device_name} scrolling up: {seen_visible} of {seen} lines had already finished animating before they came on screen"
+        assert seen_visible <= 1, f"{device_name} scrolling up: {seen_visible} of {seen} lines had already finished animating before they came on screen: {page.early}"
         page.wait_for_timeout(1200)
         assert visible_lines_ok(page), f"{device_name}: lines on screen still invisible after scrolling up"
         Site.close(page)
@@ -518,7 +528,7 @@ def link_preview_centres_on_the_link_text(site):
     scroll_to(page, page.evaluate("document.getElementById('products').offsetTop + document.querySelector('.sections').offsetTop"))
     # Wait for scrolling to settle (the nav returns when idle); scrolling hides previews.
     wait_for(page, "document.querySelector('.nav').classList.contains('show')", timeout=8000)
-    assert visible_lines_ok(page), "Products lines never became visible"
+    assert visible_lines_ok(page), f"Products lines never became visible: {stuck_lines(page)}"
     box = page.locator("#products a", has_text="AI Chat").first.bounding_box()
     page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
     wait_for(page, "+getComputedStyle(document.querySelector('.preview')).opacity > 0.9", timeout=5000)
