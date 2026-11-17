@@ -186,8 +186,7 @@ function layoutNav() {
   let left = (vw - w) / 2 // centred on the page
   if (left + w > maxRight) left = maxRight - w // shift clear of the cord
   left = Math.max(EDGE, left) // and never off the left edge (then it wraps)
-  // When it has to wrap, centre the rows in the space left of the cord.
-  navLinks.style.justifyContent = w > maxRight - EDGE ? "center" : ""
+  // When it has to wrap, rows start at the left edge (second row under the first).
   root.style.setProperty("--nav-left", `${Math.round(left)}px`)
   root.style.setProperty("--nav-right", `${Math.max(EDGE, Math.round(vw - maxRight))}px`)
   // Keep the content fade under the nav as tall as the nav.
