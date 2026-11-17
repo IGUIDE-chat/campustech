@@ -183,10 +183,18 @@ function layoutNav() {
   navLinks.style.flexWrap = ""
   navLinks.style.width = ""
   const maxRight = cordX - CORD_GAP // the links must end before this
-  // One row: centred in the free space between the left edge and the cord.
-  // Two rows (doesn't fit): start at the left edge, second row under the first.
+  // One row, room to spare: centred on the page, on the same axis as the title.
+  // One row, but centring would run into the cord: centred in the free space
+  // between the left edge and the cord. Two rows: start at the left edge.
+  const hero = document.querySelector(".hero-text")?.getBoundingClientRect()
+  const axis = hero && hero.width ? hero.left + hero.width / 2 : vw / 2
   const free = maxRight - EDGE
-  const left = w <= free ? EDGE + (free - w) / 2 : EDGE
+  const left =
+    axis + w / 2 <= maxRight && axis - w / 2 >= EDGE
+      ? axis - w / 2
+      : w <= free
+        ? EDGE + (free - w) / 2
+        : EDGE
   root.style.setProperty("--nav-left", `${Math.round(left)}px`)
   root.style.setProperty("--nav-right", `${Math.max(EDGE, Math.round(vw - maxRight))}px`)
   // Keep the content fade under the nav as tall as the nav.

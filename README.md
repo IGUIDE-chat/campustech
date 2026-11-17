@@ -81,7 +81,7 @@ grep -n "TODO(campustech)" index.html
   ScrollSmoother's transform would break `position: fixed` inside the content.
 - **Smooth scrolling** uses GSAP ScrollSmoother (`smooth: 1.2`); phones keep
   native momentum scrolling. Section lines fade up as they enter the screen.
-- **Nav** is centred at the top on full-size screens (left-aligned on phones,
+- **Nav** is centred on the title's axis when one row fits clear of the cord (else centred in the space left of the cord; left-aligned on two rows,
   clear of the cord). It is visible while the page is still, fades out while
   scrolling, and returns half a second after scrolling stops.
 - **Hero alignment**: centred by default, or all three lines starting at
