@@ -151,6 +151,41 @@ npm install
 npm run build
 ```
 
+## CI: regression checks
+
+Every bug this site has had is guarded by a check; GitHub Actions
+(`.github/workflows/ci.yml`) runs both suites on every push and pull request.
+Run them locally before pushing:
+
+```bash
+python tools/ci/check_static.py
+```
+
+```bash
+python tools/ci/test_site.py
+```
+
+- `tools/ci/check_static.py` (no browser): generated pages and asset hashes are
+  up to date, every local link resolves, sub-page nav never marks in-page links
+  active, SEO basics on every page (title with "Campus Tech at UIUC", one h1,
+  description, clean canonical, noindex where intended, valid JSON-LD), the
+  Search Console tag stays, sitemap/robots/llms use clean URLs, no control
+  characters in any file, the loading-screen preview flag works, no pure black,
+  credits and the original vendor file are intact, no private email is
+  published (checked by hash), hero markup and next-section links exist.
+- `tools/ci/test_site.py` (Playwright, desktop and phone): no JS errors on any
+  page in either theme, loading screen, no horizontal overflow on phones, the
+  cord switches on release (not while held), click pulls, cord stays on top
+  and grabbable, theme switching keeps both effects working, the light trail
+  keeps its colour with white text under it, phones skip the trail, smooth
+  scroll on desktop and native on phones (band behind the nav), nav hides while
+  scrolling, adaptive nav layout, in-page links jump, lines animate in view in
+  both directions and never vanish on screen, hidden text is always recovered,
+  reading pages animate once, hero alignment and toggle, fluid type, team rows,
+  link previews centred.
+
+When you fix a new bug, add a check for it here in the same commit.
+
 ## Credits and licences
 
 - Tubes Cursor by Kevin Levron, CC BY-NC-SA 4.0 (credit required,

@@ -393,9 +393,16 @@ html:not(.pinned) .nav.under::before {
   text-align: center;
 }
 
-.sections h2 {
+.sections h2,
+.sections .page-title {
   font-size: clamp(40px, 9vw, 60px);
   margin-bottom: 10px;
+}
+
+/* A sub page's own title (Past, 404, Coming soon) is its h1, drawn like a
+   section heading. */
+.sections .page-title {
+  margin-top: 0.83em;
 }
 
 .sections p,

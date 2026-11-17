@@ -18,7 +18,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def digest(path):
-    return hashlib.sha1(path.read_bytes()).hexdigest()[:10]
+    # Line endings normalised: a Windows checkout (CRLF) and the Linux CI /
+    # Cloudflare checkout (LF) must agree on the hash.
+    return hashlib.sha1(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()[:10]
 
 
 def main():

@@ -192,7 +192,7 @@ PAGES["past.html"] = page(
     "Past · Campus Tech at UIUC",
     "Past products and presidents of Campus Tech at UIUC.",
     """    <section id="past">
-      <h2>Past</h2>
+      <h1 class="page-title">Past</h1>
       <!-- TODO(campustech): retired or earlier products; add each president as terms end -->
       <p class="label">Products</p>
       <ul>
@@ -487,7 +487,7 @@ PAGES["404.html"] = page(
     "Page not found · Campus Tech at UIUC",
     "This page does not exist.",
     """    <section>
-      <h2>404</h2>
+      <h1 class="page-title">404</h1>
       <p>This page doesn't exist.</p>
       <p><a href="/">Back to Campus Tech</a> · <a href="/articles/">Articles</a></p>
     </section>""",
@@ -500,7 +500,7 @@ PAGES["coming-soon.html"] = page(
     "Coming soon · Campus Tech at UIUC",
     "This part of Campus Tech is coming soon.",
     f"""    <section>
-      <h2>Coming soon</h2>
+      <h1 class="page-title">Coming soon</h1>
       <p>We're still building this one.</p>
       <p class="note">Want to help build it? <a href="{APPLY}" target="_blank" rel="noopener">Apply</a> · or go <a href="./">back home</a></p>
     </section>""",
@@ -556,7 +556,7 @@ def text_of(html):
     main = re.search(r"<main[^>]*>(.*)</main>", html, re.S)
     body = main.group(1) if main else html
     body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
-    body = re.sub(r"</(b|a)>\s*<span>", r"</> — <span>", body)  # "Name — description"
+    body = re.sub(r"</(b|a)>\s*<span>", r"</\1> — <span>", body)  # "Name — description"
     body = re.sub(r"<(h1|h2)[^>]*>", "\n## ", body)
     body = re.sub(r"<dt[^>]*>", "\nQ: ", body)
     body = re.sub(r"<dd[^>]*>", "\nA: ", body)

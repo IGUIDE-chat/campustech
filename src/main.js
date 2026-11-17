@@ -1,5 +1,5 @@
-import { startDither } from "./dither.js?v=1854ce10a1"
-import { startTubes } from "./tubes.js?v=aec2ea1b7f"
+import { startDither } from "./dither.js?v=46961e618e"
+import { startTubes } from "./tubes.js?v=ef6386e387"
 
 // ---- Background (original script.js, with the smoothed cursor from tubes.js) ----
 

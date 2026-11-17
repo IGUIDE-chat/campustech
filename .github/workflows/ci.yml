@@ -1,0 +1,34 @@
+name: CI
+
+# Regression checks for every bug this site has had. Runs on every push and
+# pull request; Cloudflare Pages deploys main regardless, so keep this green.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static checks (generated files, asset hashes, SEO, links, privacy, licences)
+        run: python tools/ci/check_static.py
+
+      - name: Install Playwright and Chromium
+        run: |
+          pip install playwright==1.58.0 pillow
+          python -m playwright install --with-deps chromium
+
+      - name: Browser tests (desktop and phone)
+        run: python tools/ci/test_site.py
