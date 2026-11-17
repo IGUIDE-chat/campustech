@@ -25,6 +25,11 @@ var SEGMENTS = 16;
 var REST_SEG = REST_Y / SEGMENTS;
 var KNOB_R = 6.5;
 var HIT = 46;
+// Campus Tech change: the stock SVG is only W wide and draws the swinging rope
+// outside its box with overflow: visible. iPhone WebKit sometimes clips to the
+// box instead, so a wide swing showed a rope cut off mid-way with no knob. The
+// SVG now spans the whole reach of the rope (same coordinates, wider viewBox).
+var REACH = REST_Y + DEFAULT_CONFIG.stretchMax + KNOB_R + 12;
 function buildPath(p) {
   let d = `M ${p[0].x.toFixed(1)} ${p[0].y.toFixed(1)}`;
   for (let i = 1; i < p.length - 1; i++) {
@@ -299,7 +304,7 @@ function PullCord({
         pointerEvents: "none"
       },
       children: /* @__PURE__ */ jsxs("div", { className: drop ? "pullcord-inner pullcord-inner--drop" : "pullcord-inner", onAnimationEnd: onDropEnd, children: [
-        /* @__PURE__ */ jsxs("svg", { viewBox: `0 0 ${W} ${SVG_H}`, width: W, height: SVG_H, "aria-hidden": "true", style: { overflow: "visible" }, children: [
+        /* @__PURE__ */ jsxs("svg", { viewBox: `${ANCHOR_X - REACH} 0 ${2 * REACH} ${SVG_H}`, width: 2 * REACH, height: SVG_H, "aria-hidden": "true", style: { position: "absolute", left: ANCHOR_X - REACH, top: 0, overflow: "visible", pointerEvents: "none" }, children: [
           /* @__PURE__ */ jsxs("defs", { children: [
             /* @__PURE__ */ jsxs("linearGradient", { id: "pc-knob", x1: "0", y1: "0", x2: "0", y2: "1", children: [
               /* @__PURE__ */ jsx("stop", { offset: "0%", stopColor: "#ffffff" }),

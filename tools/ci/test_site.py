@@ -190,6 +190,38 @@ def cord_switches_theme_on_release_not_while_held(site):
 
 
 @test
+def cord_svg_holds_the_whole_swing(site):
+    """iPhone: a wide swing showed the rope cut off mid-way with no knob. The SVG was 64px wide
+    and drew the swing outside its box (overflow: visible), which iOS WebKit may clip. The rope
+    and knob must stay inside the SVG's own box at every frame of a hard swing."""
+    page = site.open("/", theme="dark")
+    x, y = knob_center(page)
+    page.mouse.move(x, y)
+    page.mouse.down()
+    for i in range(1, 13):
+        page.mouse.move(x - i * 22, y + i * 6)
+        page.wait_for_timeout(16)
+    page.mouse.up()
+    worst = page.evaluate(
+        """() => new Promise(done => {
+          const svg = document.querySelector('.pullcord svg'), box = () => svg.getBoundingClientRect()
+          let worst = 1e9, n = 0
+          const tick = () => {
+            const s = box()
+            for (const el of svg.querySelectorAll('path, circle')) {
+              const r = el.getBoundingClientRect()
+              worst = Math.min(worst, r.left - s.left, s.right - r.right, s.bottom - r.bottom)
+            }
+            if (++n < 90) requestAnimationFrame(tick); else done(Math.round(worst))
+          }
+          tick()
+        })"""
+    )
+    assert worst >= 0, f"rope or knob drawn {-worst}px outside the cord's SVG box (iOS clips it)"
+    Site.close(page)
+
+
+@test
 def cord_click_plays_a_pull_and_switches(site):
     """d3d9249: a click animates a real pull (and switches on release)."""
     page = site.open("/", theme="light")
@@ -482,6 +514,26 @@ def text_never_stays_hidden_even_without_scroll_triggers(site):
     page.wait_for_timeout(2200)
     assert visible_lines_ok(page), "on-screen text stayed invisible when ScrollTrigger missed it"
     Site.close(page)
+
+
+@test
+def nav_jumps_show_the_section_and_keep_it_shown(site):
+    """Phone: tapping Contact left its heading, email and icons invisible. The jump entered all
+    25 lines at once, the stagger made Contact wait ~2s, and the late stagger reset it to
+    invisible after the safety net had shown it. Lines must show fast and stay shown."""
+    on_screen = """sel => [...document.querySelectorAll(sel)].filter(e => {
+        const r = e.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight })
+        .map(e => +getComputedStyle(e).opacity)"""
+    for device in (PHONE, DESKTOP):
+        page = site.open("/", device)
+        for target, sel in (("#contact", "#contact > *"), ("#products", "#products li"), ("#team", "#team li"), ("#contact", "#contact > *")):
+            page.evaluate("t => document.querySelector('.nav-links a[href=\"' + t + '\"]').click()", target)
+            ok = wait_for(page, f"({on_screen})({sel!r}).every(o => o > 0.98)", timeout=6000)
+            assert ok, f"{target}: lines on screen not shown after the jump: {page.evaluate(on_screen, sel)}"
+            page.wait_for_timeout(2500)  # the old stagger reset lines ~2s after the jump
+            ops = page.evaluate(on_screen, sel)
+            assert ops and all(o > 0.98 for o in ops), f"{target}: lines went invisible again after the jump: {ops}"
+        Site.close(page)
 
 
 @test

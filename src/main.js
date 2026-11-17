@@ -138,15 +138,24 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
   // Lines currently hidden (waiting to animate in). Only these animate in, so a
   // line that is already visible never replays on a small scroll reversal.
   const hidden = new Set(lines)
+  // Only lines on screen animate. A jump (nav link) enters every line it passes;
+  // staggering all of them made the lines on screen wait ~2s, and the late
+  // stagger then reset them to invisible after the safety net had shown them
+  // (Contact stayed blank on phones). Lines passed off screen stay hidden for
+  // their next entrance. One tween per line, so a later overwrite kills it
+  // cleanly, and the whole cascade lasts at most 0.4s.
   const show = (els, fromY, from) => {
-    const todo = els.filter((el) => hidden.has(el))
-    todo.forEach((el) => hidden.delete(el))
-    if (todo.length)
+    const todo = els.filter((el) => hidden.has(el) && onScreen(el))
+    if (from === "end") todo.reverse()
+    const each = Math.min(0.08, 0.4 / todo.length)
+    todo.forEach((el, i) => {
+      hidden.delete(el)
       gsap.fromTo(
-        todo,
+        el,
         { opacity: 0, y: fromY },
-        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: i * each, overwrite: true },
       )
+    })
   }
   // A line is hidden again only once it is completely off screen (instantly; no
   // one sees it), ready to animate in the next time it comes into view.
@@ -172,6 +181,9 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
       onLeave: (els) => hide(els, -40),
       onLeaveBack: (els) => hide(els, 40),
     })
+  // When scrolling stops, any line on screen still waiting (entered while off
+  // screen during a jump) animates in.
+  ScrollTrigger.addEventListener("scrollEnd", () => show(lines.filter(onScreen), 40, "start"))
   // Fail-safe: after any re-measure, lines on screen are shown.
   ScrollTrigger.addEventListener("refresh", () => {
     const stuck = lines.filter((el) => onScreen(el) && invisible(el))
