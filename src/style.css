@@ -147,6 +147,23 @@ p {
   color: var(--muted);
 }
 
+/* "products" in the tagline jumps to the Products section: same colour as the
+   line, only a faint underline as the hint; it brightens on hover. */
+#app .tagline a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--faint);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+#app .tagline a:hover,
+#app .tagline a:focus-visible {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
 /* The hero is one heading ("Campus Tech") for search engines and screen readers,
    drawn exactly like the original two lines: CAMPUS at 80px/700, TECH at 60px/500,
    10px apart. */
