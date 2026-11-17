@@ -155,4 +155,6 @@ automatically. No build command; the output directory is the repo root.
   After editing anything in `src/` or `vendor/`, run
   `python tools/stamp_assets.py` (`build_pages.py` runs it too) before
   committing, or returning visitors keep the old files for up to 4 hours.
-- Append `?loading` to any page to keep the loading screen on (preview).
+- Append `?loading` to any page to keep the loading screen on (preview). It is a
+  skeleton of the page (grey blocks where the hero or the text goes, with a
+  shimmer), shown only when loading takes longer than ~0.35s.
