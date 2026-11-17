@@ -35,6 +35,8 @@
   <!-- Apply the remembered theme before first paint so light mode does not flash dark. -->
   <script>
     try { if (localStorage.getItem("campustech-theme") === "light") document.documentElement.dataset.theme = "light" } catch (e) {}
+    // Layout preview: ?hero=left aligns the three hero lines to CAMPUS's left edge.
+    if (new URLSearchParams(location.search).get("hero") === "left") document.documentElement.classList.add("hero-left")
   </script>
 </head>
 <body>
@@ -67,8 +69,10 @@
   <div id="smooth-content">
   <div id="app">
     <div class="hero" id="top">
-      <h1>Campus<span class="hero-sub">Tech</span></h1>
-      <p class="tagline">We build products for campus life.</p>
+      <div class="hero-text">
+        <h1>Campus<span class="hero-sub">Tech</span></h1>
+        <p class="tagline">We build products for campus life.</p>
+      </div>
     </div>
   </div>
 

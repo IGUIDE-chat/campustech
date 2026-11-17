@@ -140,7 +140,7 @@ p {
 
 /* Same size and weight as the link under the title on the original page. */
 .tagline {
-  font-size: 16px;
+  font-size: clamp(13px, 3.8vw, 16px);
   font-weight: 500;
   line-height: 1.4;
   text-align: center;
@@ -150,28 +150,44 @@ p {
 /* The hero is one heading ("Campus Tech") for search engines and screen readers,
    drawn exactly like the original two lines: CAMPUS at 80px/700, TECH at 60px/500,
    10px apart. */
+/* The heading and tagline sit in one block, centred on the page as a whole. */
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
 .hero h1 {
   text-align: center; /* TECH is a block inside the heading; centre it under CAMPUS */
+}
+
+/* Variant (?hero=left): all three lines start at CAMPUS's left edge; the block is
+   still centred on the page. */
+.hero-left .hero-text {
+  align-items: flex-start;
+}
+
+.hero-left .hero h1,
+.hero-left .hero .tagline {
+  text-align: left;
 }
 
 .hero h1 .hero-sub {
   display: block;
   margin-top: 10px;
-  font-size: 60px;
   font-weight: 500;
   line-height: 100%; /* its own, not the 80px inherited from CAMPUS */
 }
 
-/* Small screens: keep the original proportions. */
-@media (max-width: 520px) {
-  h1 {
-    font-size: 16vw;
-  }
+/* Fluid type: every size scales smoothly with the screen between a minimum and
+   its full size (the original 80px / 60px on wide screens), with no jumps. */
+.hero h1 {
+  font-size: clamp(42px, 15.5vw, 80px);
+}
 
-  h2,
-  .hero h1 .hero-sub {
-    font-size: 12vw;
-  }
+.hero h1 .hero-sub {
+  font-size: clamp(32px, 11.6vw, 60px);
 }
 
 /* Pull cord: flat knob in the main text colour (white on dark, charcoal on
@@ -198,9 +214,11 @@ p {
      they fit and shifted just clear of the pull cord when they don't. */
   padding: 18px var(--nav-right, calc(var(--pullcord-right) + 2.5rem)) 18px var(--nav-left, 16px);
   font-family: "Montserrat", sans-serif;
-  font-size: 13px;
+  /* Grows slowly so the six links stay on one line for as long as possible;
+     full size (13px, 0.12em) only on wide screens. */
+  font-size: clamp(10px, calc(0.6vw + 7.5px), 13px);
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: clamp(0.03em, calc(0.16vw - 0.03em), 0.12em);
   text-transform: uppercase;
   text-shadow: 0 0 20px var(--halo);
   transform: translateY(-12px);
@@ -263,33 +281,18 @@ html:not(.pinned) .nav.scrolled::before {
 
 /* Medium screens: slightly tighter text so all six links usually fit on one line. */
 @media (max-width: 900px) {
-  .nav {
-    font-size: 12px;
-    letter-spacing: 0.08em;
-  }
-
   .nav-links {
     column-gap: 16px;
   }
 }
 
 @media (max-width: 520px) {
-  .nav {
-    font-size: 11px;
-    letter-spacing: 0.06em;
-  }
-
   .nav-links {
     gap: 14px;
   }
 }
 
 @media (max-width: 360px) {
-  .nav {
-    font-size: 10px;
-    letter-spacing: 0.02em;
-  }
-
   .nav-links {
     gap: 6px 9px;
   }
@@ -575,7 +578,7 @@ body.no-tubes .bg {
 
 .sections .prose p,
 .sections .prose li {
-  font-size: 17px;
+  font-size: clamp(15px, 4.2vw, 17px);
   line-height: 1.7;
   margin: 0 0 14px;
   text-align: left;

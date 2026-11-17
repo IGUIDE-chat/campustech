@@ -179,13 +179,15 @@ function layoutNav() {
   // Natural one-line width of the links.
   navLinks.style.flexWrap = "nowrap"
   navLinks.style.width = "max-content"
-  const w = navLinks.getBoundingClientRect().width
+  const w = Math.ceil(navLinks.getBoundingClientRect().width) + 2 // + slack for sub-pixel rounding
   navLinks.style.flexWrap = ""
   navLinks.style.width = ""
   const maxRight = cordX - CORD_GAP // the links must end before this
   let left = (vw - w) / 2 // centred on the page
   if (left + w > maxRight) left = maxRight - w // shift clear of the cord
   left = Math.max(EDGE, left) // and never off the left edge (then it wraps)
+  // When it has to wrap, centre the rows in the space left of the cord.
+  navLinks.style.justifyContent = w > maxRight - EDGE ? "center" : ""
   root.style.setProperty("--nav-left", `${Math.round(left)}px`)
   root.style.setProperty("--nav-right", `${Math.max(EDGE, Math.round(vw - maxRight))}px`)
   // Keep the content fade under the nav as tall as the nav.
