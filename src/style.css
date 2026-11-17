@@ -308,10 +308,16 @@ p {
 }
 
 html.pinned #smooth-wrapper {
-  /* 0px / 0px = no mask at all; --nav-h is the nav's real height (main.js). */
+  transition: --nav-fade 0.3s ease, --nav-soft 0.3s ease;
+}
+
+/* The mask only exists while the nav shows (and during its fade-out: main.js
+   keeps html.nav-masked a moment longer). A mask on the whole page layer at
+   all times made every scrolled frame re-mask the page and stutter.
+   --nav-h is the nav's real height (main.js). */
+html.pinned.nav-masked #smooth-wrapper {
   -webkit-mask-image: linear-gradient(to bottom, transparent var(--nav-fade), #000 calc(var(--nav-fade) + var(--nav-soft)));
   mask-image: linear-gradient(to bottom, transparent var(--nav-fade), #000 calc(var(--nav-fade) + var(--nav-soft)));
-  transition: --nav-fade 0.3s ease, --nav-soft 0.3s ease;
 }
 
 html.pinned.nav-shown #smooth-wrapper {

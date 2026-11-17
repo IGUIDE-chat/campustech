@@ -27,9 +27,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="vendor/pullcord.css?v=ad7fd9d829">
-  <link rel="stylesheet" href="src/style.css?v=97ca93cee0">
+  <link rel="stylesheet" href="src/style.css?v=8b85df53dc">
   <script>
     try { if (localStorage.getItem("campustech-theme") === "light") document.documentElement.dataset.theme = "light" } catch (e) {}
+    // A refresh starts at the top (main.js); set before the browser restores the old position.
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   </script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://campustech.iguide.chat/"}, {"@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://campustech.iguide.chat/privacy"}]}</script>
   <!-- Loading screen (a skeleton of the page: grey blocks where the content goes, with a shimmer): only appears if the page takes longer than ~0.35s, so fast
@@ -132,6 +134,6 @@
   <script src="vendor/ScrollTrigger.min.js?v=ecd3242f5d"></script>
   <script src="vendor/ScrollSmoother.min.js?v=7fdc3f44cc"></script>
   <script src="vendor/pullcord.js?v=5c79ae2e53"></script>
-  <script type="module" src="src/main.js?v=0701dafe51"></script>
+  <script type="module" src="src/main.js?v=82901f809c"></script>
 </body>
 </html>

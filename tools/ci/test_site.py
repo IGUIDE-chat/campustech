@@ -249,7 +249,7 @@ def light_trail_keeps_its_colour_and_layers(site):
     from PIL import Image
 
     img = Image.open(BytesIO(shot)).convert("RGB")
-    px = list(img.getdata())
+    px = list(img.get_flattened_data() if hasattr(img, "get_flattened_data") else img.getdata())
     near = lambda p, c, tol=14: all(abs(a - b) <= tol for a, b in zip(p, c))
     trail = sum(near(p, (0x69, 0x58, 0xD5)) for p in px)
     white = sum(min(p) > 235 for p in px)
@@ -339,13 +339,53 @@ def in_page_links_jump(site):
     Site.close(page)
 
 
+@test
+def refresh_starts_at_the_top(site):
+    """Refresh jumped back to Contact: in-page links wrote #contact into the address bar."""
+    page = site.open("/")
+    page.locator(".nav-links a[href='#contact']").click()
+    wait_for(page, "Math.abs(document.getElementById('contact').getBoundingClientRect().top) < 150")
+    assert page.evaluate("location.hash") == "", "an in-page link wrote its hash into the address bar"
+    page.reload(wait_until="load")
+    page.wait_for_timeout(1200)
+    top = page.evaluate("document.getElementById('top').getBoundingClientRect().top")
+    assert abs(top) < 5, f"refresh did not start at the top (hero top {top:.0f})"
+    Site.close(page)
+    page = site.open("/#join")
+    assert wait_for(page, "Math.abs(document.getElementById('join').getBoundingClientRect().top) < 150"), "a shared /#join link did not land on Join"
+    assert page.evaluate("location.hash") == "", "the shared hash stayed in the address bar (a refresh would jump again)"
+    Site.close(page)
+
+
+@test
+def nothing_expensive_runs_while_scrolling(site):
+    """Scroll stutter: no page-wide mask while scrolling; the idle light trail does no work."""
+    page = site.open("/")
+    for i in range(1, 25):
+        scroll_to(page, i * 40)
+        page.wait_for_timeout(40)
+    mask = page.evaluate("getComputedStyle(document.getElementById('smooth-wrapper')).maskImage || getComputedStyle(document.getElementById('smooth-wrapper')).webkitMaskImage")
+    assert mask in ("none", "", None), f"the page layer is masked while scrolling ({mask[:40]})"
+    assert wait_for(page, "document.documentElement.classList.contains('nav-masked')", timeout=5000), "mask never returned with the nav"
+    Site.close(page)
+    page = site.open("/", theme="light")
+    page.wait_for_timeout(1500)
+    vis = page.evaluate("[...document.querySelectorAll('.trail-flip, .trail-dodge')].map(c => getComputedStyle(c).visibility)")
+    assert vis and all(v == "hidden" for v in vis), f"idle trail layers are still composited: {vis}"
+    page.mouse.move(400, 400)
+    page.mouse.move(500, 420)
+    assert wait_for(page, "[...document.querySelectorAll('.trail-flip')].every(c => getComputedStyle(c).visibility === 'visible')", timeout=3000), "trail layers did not come back on mouse move"
+    Site.close(page)
+
+
 # ---------------------------------------------------------------- line animation
 
 
 def step_scroll(page, direction, step=80):
     """Scroll the whole page in small steps; return (lines dropped while on screen, lines seen, seen already visible)."""
     page.evaluate(
-        f"""window.__lines = {LINES_JS}; window.__last = new Map(); window.__dropped = []; window.__seen = new Set(); window.__seenVisible = 0"""
+        f"""window.__lines = {LINES_JS}; window.__last = new Map(); window.__dropped = []; window.__seen = new Set(); window.__seenVisible = 0;
+        window.__wasHidden = new Set(window.__lines.filter(el => +getComputedStyle(el).opacity < 0.05))"""
     )
     top = max_scroll(page)
     ys = range(0, top + 1, step) if direction == "down" else range(top, -1, -step)
@@ -356,7 +396,7 @@ def step_scroll(page, direction, step=80):
             """dir => { for (const el of window.__lines) { const r = el.getBoundingClientRect();
             const on = r.bottom > 0 && r.top < innerHeight; const o = +getComputedStyle(el).opacity; const prev = window.__last.get(el);
             if (on && prev && prev.on && o < prev.o - 0.05) window.__dropped.push(el.textContent.trim().slice(0, 20));
-            if (on && !window.__seen.has(el)) { window.__seen.add(el); if (o > 0.95) window.__seenVisible++ }
+            if (on && !window.__seen.has(el)) { window.__seen.add(el); if (o > 0.95 && window.__wasHidden.has(el)) window.__seenVisible++ }
             window.__last.set(el, { on, o }) } }""",
             direction,
         )
@@ -367,7 +407,8 @@ def visible_lines_ok(page, timeout=10000):
     """True once every line on screen is fully visible (waits for slow animations)."""
     return wait_for(
         page,
-        f"""() => {LINES_JS}.filter(el => {{ const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight }})
+        # Lines in the outer 8% strips are correctly still hidden: they animate once 8% in.
+        f"""() => {LINES_JS}.filter(el => {{ const r = el.getBoundingClientRect(); return r.bottom > innerHeight * 0.1 && r.top < innerHeight * 0.9 }})
         .every(el => +getComputedStyle(el).opacity > 0.99)""",
         timeout=timeout,
     )
@@ -385,8 +426,8 @@ def lines_animate_in_view_both_directions(site):
         dropped, seen, seen_visible = step_scroll(page, "up")
         assert not dropped, f"{device_name} scrolling up: lines faded while on screen: {dropped[:5]}"
         assert seen >= 20, f"{device_name}: only {seen} lines checked"
-        # Lines already on screen at the bottom count as visible; everything else must still be hidden when it appears.
-        assert seen_visible <= 4, f"{device_name} scrolling up: {seen_visible} of {seen} lines had already finished animating before they came on screen"
+        # Of the lines hidden when the upward pass starts, none may have finished animating before it appears.
+        assert seen_visible <= 1, f"{device_name} scrolling up: {seen_visible} of {seen} lines had already finished animating before they came on screen"
         page.wait_for_timeout(1200)
         assert visible_lines_ok(page), f"{device_name}: lines on screen still invisible after scrolling up"
         Site.close(page)
@@ -474,8 +515,9 @@ def team_rows_follow_screen_width(site):
 def link_preview_centres_on_the_link_text(site):
     """'preview is not centered': the hover card sits centred over the hovered text."""
     page = site.open("/")
-    page.evaluate("document.getElementById('products').scrollIntoView()")
-    page.wait_for_timeout(800)
+    scroll_to(page, page.evaluate("document.getElementById('products').offsetTop + document.querySelector('.sections').offsetTop"))
+    # Wait for scrolling to settle (the nav returns when idle); scrolling hides previews.
+    wait_for(page, "document.querySelector('.nav').classList.contains('show')", timeout=8000)
     assert visible_lines_ok(page), "Products lines never became visible"
     box = page.locator("#products a", has_text="AI Chat").first.bounding_box()
     page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)

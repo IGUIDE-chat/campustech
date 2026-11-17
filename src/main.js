@@ -1,4 +1,4 @@
-import { startDither } from "./dither.js?v=46961e618e"
+import { startDither } from "./dither.js?v=4416b6163d"
 import { startTubes } from "./tubes.js?v=ef6386e387"
 
 // ---- Background (original script.js, with the smoothed cursor from tubes.js) ----
@@ -165,8 +165,10 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
   // Leaving: only once fully off screen. Reading pages (.prose) keep their text.
   if (repeatLines.length)
     ScrollTrigger.batch(repeatLines, {
-      start: "top bottom",
-      end: "bottom top",
+      // 80px past the edges: a line still mid-animation sits up to 40px off
+      // its place and must not vanish while part of it is visible.
+      start: "top bottom+=80",
+      end: "bottom top-=80",
       onLeave: (els) => hide(els, -40),
       onLeaveBack: (els) => hide(els, 40),
     })
@@ -209,12 +211,21 @@ document.addEventListener("click", (event) => {
   if (!target) return
   event.preventDefault()
   scrollToTarget(target)
-  history.replaceState(null, "", link.getAttribute("href"))
+  // The address bar is left alone: writing #contact into it made a refresh
+  // jump straight back to Contact.
 })
 
-// A shared link like /#join lands on that section.
+// A refresh starts at the top instead of the browser restoring the old scroll
+// position. A shared link like /#join still lands on that section; the hash is
+// then dropped from the address bar so a later refresh starts at the top too.
+if ("scrollRestoration" in history) history.scrollRestoration = "manual"
 const initial = location.hash && document.querySelector(location.hash)
-if (initial) requestAnimationFrame(() => scrollToTarget(initial, false))
+if (initial) {
+  requestAnimationFrame(() => scrollToTarget(initial, false))
+  history.replaceState(null, "", location.pathname + location.search)
+} else {
+  window.scrollTo(0, 0)
+}
 
 // ---- Nav: shown while the page is still, fades out while scrolling ----
 
@@ -298,9 +309,24 @@ function updateBackdrop() {
 }
 
 /** Show or hide the nav; the content mask under it follows (html.nav-shown). */
+let unmaskTimer = 0
 function setNavShown(shown) {
+  const root = document.documentElement
   nav.classList.toggle("show", shown)
-  document.documentElement.classList.toggle("nav-shown", shown)
+  root.classList.toggle("nav-shown", shown)
+  // The mask on the page layer exists only while the nav shows, plus its 0.3s
+  // fade-out, never while scrolling (see style.css).
+  // Scroll events call this many times a second: schedule the removal once.
+  if (shown) {
+    clearTimeout(unmaskTimer)
+    unmaskTimer = 0
+    root.classList.add("nav-masked")
+  } else if (!unmaskTimer && root.classList.contains("nav-masked")) {
+    unmaskTimer = setTimeout(() => {
+      unmaskTimer = 0
+      root.classList.remove("nav-masked")
+    }, 350)
+  }
 }
 
 function onScroll() {

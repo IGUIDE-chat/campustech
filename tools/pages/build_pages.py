@@ -85,6 +85,8 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <link rel="stylesheet" href="{up}src/style.css">
   <script>
     try {{ if (localStorage.getItem("campustech-theme") === "light") document.documentElement.dataset.theme = "light" }} catch (e) {{}}
+    // A refresh starts at the top (main.js); set before the browser restores the old position.
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   </script>
 {ld}  <!-- Loading screen (a skeleton of the page: grey blocks where the content goes, with a shimmer): only appears if the page takes longer than ~0.35s, so fast
        loads never see it; hidden on window load (8s safety cut-off). Inline so it

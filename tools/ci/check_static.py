@@ -224,6 +224,17 @@ for p in PAGES:
     if 'id="loader"' in t and "loader-dot" in t:
         fail("loader", f"{rel(p)}: three-dot loader is back (dcc0f9a: skeleton only)")
 
+# --- A line starting with ( or [ glues onto the previous statement when that
+#     one has no semicolon: `x = "manual"` + `(function () {...})()` became
+#     "manual"(...) and broke the head script (theme, hero alignment).
+for p in PAGES:
+    for script in re.findall(r"<script>(.*?)</script>", p.read_text(encoding="utf-8"), re.S):
+        code = [l.strip() for l in script.splitlines()]
+        code = [l for l in code if l and not l.startswith("//")]
+        for prev, line in zip(code, code[1:]):
+            if line[0] in "([" and not prev.endswith((";", "{", "}", "(", ",", "[")):
+                fail("asi", f"{rel(p)}: inline script line {line[:40]!r} follows {prev[-40:]!r} without a semicolon")
+
 # --- No 100% black anywhere in the page colours (design rule; masks excepted,
 #     where #000 only means "opaque").
 for line_no, line in enumerate((ROOT / "src" / "style.css").read_text(encoding="utf-8").splitlines(), 1):

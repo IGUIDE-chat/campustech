@@ -80,6 +80,7 @@ export function startDither(canvas) {
   let seen = false
   let lastMove = -1
   let energy = 0
+  let cleared = false // the canvases are blank and idle frames can be skipped
   let active = false
   let raf = 0
   let last = 0
@@ -147,7 +148,16 @@ export function startDither(canvas) {
       }
     }
 
-    render()
+    // Idle (no dots left): draw one last empty frame, then skip all canvas work
+    // and take the blend layers out of compositing until the pointer moves
+    // again. Redrawing three full-screen canvases every frame for nothing, and
+    // blending the whole page through them, made scrolling stutter.
+    const idle = energy <= 0.001
+    if (!idle || !cleared) {
+      render()
+      cleared = idle
+      for (const { el } of overlays) el.style.visibility = idle ? "hidden" : "visible"
+    }
     raf = active ? requestAnimationFrame(frame) : 0
   }
 
@@ -229,6 +239,7 @@ export function startDither(canvas) {
         // chain re-seeds at the pointer on the next move instead of sweeping in
         // from wherever it was when the theme last changed.
         energy = 0
+        cleared = false
         seen = false
         last = 0
         resize()
