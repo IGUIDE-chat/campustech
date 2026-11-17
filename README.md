@@ -102,7 +102,9 @@ grep -n "TODO(campustech)" index.html
   own as it enters or leaves the screen (GSAP `ScrollTrigger.batch`), in the
   scroll direction: rising in from below when scrolling down, dropping in from
   above (bottom first) when scrolling up, so it is always seen, also on tall
-  phone sections. Lines arriving together cascade. Fail-safes: lines on screen
+  phone sections. Lines arriving together cascade. A line is hidden again only
+  once it is completely off screen (instantly), and a visible line never replays
+  on a small scroll reversal. Fail-safes: lines on screen
   are shown after any re-measure, and an IntersectionObserver (independent of
   GSAP) fades in any line still invisible on screen after a second.
 - **Next-section links**: the hero and each section end with the next title in

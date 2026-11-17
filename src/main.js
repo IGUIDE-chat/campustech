@@ -129,45 +129,51 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
   const isProse = (el) => !!el.closest(".prose")
   const lines = sections.flatMap(linesOf)
   const repeatLines = lines.filter((el) => !isProse(el))
-  const onceLines = lines.filter(isProse)
   const onScreen = (el) => {
     const r = el.getBoundingClientRect()
     return r.bottom > 0 && r.top < window.innerHeight
   }
   const invisible = (el) => Number(getComputedStyle(el).opacity) < 0.5
   gsap.set(lines, { opacity: 0, y: 40 })
-  const show = (els, fromY, from) =>
-    gsap.fromTo(
-      els,
-      { opacity: 0, y: fromY },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
-    )
-  const hide = (els, toY) => gsap.to(els, { opacity: 0, y: toY, duration: 0.4, ease: "power2.in", overwrite: true })
-  const shown = new WeakSet()
-  const showOnce = (els, fromY) => {
-    const fresh = els.filter((el) => !shown.has(el))
-    fresh.forEach((el) => shown.add(el))
-    if (fresh.length) show(fresh, fromY, "start")
+  // Lines currently hidden (waiting to animate in). Only these animate in, so a
+  // line that is already visible never replays on a small scroll reversal.
+  const hidden = new Set(lines)
+  const show = (els, fromY, from) => {
+    const todo = els.filter((el) => hidden.has(el))
+    todo.forEach((el) => hidden.delete(el))
+    if (todo.length)
+      gsap.fromTo(
+        todo,
+        { opacity: 0, y: fromY },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
+      )
   }
-  if (onceLines.length)
-    ScrollTrigger.batch(onceLines, {
-      start: "top 92%",
-      interval: 0.1,
-      onEnter: (els) => showOnce(els, 40),
-      onEnterBack: (els) => showOnce(els, -40),
-    })
-  if (repeatLines.length) ScrollTrigger.batch(repeatLines, {
+  // A line is hidden again only once it is completely off screen (instantly; no
+  // one sees it), ready to animate in the next time it comes into view.
+  const hide = (els, y) => {
+    els.forEach((el) => hidden.add(el))
+    gsap.set(els, { opacity: 0, y, overwrite: true })
+  }
+  // Entering: as soon as a line is 8% into the screen, in either direction.
+  ScrollTrigger.batch(lines, {
     start: "top 92%",
     end: "bottom 8%",
     interval: 0.1,
     onEnter: (els) => show(els, 40, "start"),
-    onLeave: (els) => hide(els, -40),
     onEnterBack: (els) => show(els, -40, "end"),
-    onLeaveBack: (els) => hide(els, 40),
   })
+  // Leaving: only once fully off screen. Reading pages (.prose) keep their text.
+  if (repeatLines.length)
+    ScrollTrigger.batch(repeatLines, {
+      start: "top bottom",
+      end: "bottom top",
+      onLeave: (els) => hide(els, -40),
+      onLeaveBack: (els) => hide(els, 40),
+    })
   // Fail-safe: after any re-measure, lines on screen are shown.
   ScrollTrigger.addEventListener("refresh", () => {
     const stuck = lines.filter((el) => onScreen(el) && invisible(el))
+    stuck.forEach((el) => hidden.delete(el))
     if (stuck.length) gsap.set(stuck, { opacity: 1, y: 0, overwrite: true })
   })
   // Second safety net, independent of ScrollTrigger: if a section is on screen
@@ -182,6 +188,7 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
         if (!entry.isIntersecting) return
         check = setTimeout(() => {
           const stuck = own.filter((el) => onScreen(el) && invisible(el))
+          stuck.forEach((el) => hidden.delete(el))
           if (stuck.length) gsap.to(stuck, { opacity: 1, y: 0, duration: 0.4, overwrite: true })
         }, 1000)
       },
