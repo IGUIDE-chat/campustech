@@ -95,8 +95,11 @@ grep -n "TODO(campustech)" index.html
 - **Team** fills rows of fixed-width columns, as many as fit: one column on
   phones, 2 per row from 560px, 3 from 820px, 4 (the cap) from 1080px; the last
   row is centred.
-- **Section reveal** replays every time a section comes into view, scrolling
-  down or back up (it resets once the section is off screen).
+- **Section animation** runs every time, in the scroll direction: scrolling
+  down, lines rise in from below and drift up as the section leaves; scrolling
+  up, they drop in from above (bottom line first) and sink as it leaves. Any
+  section in view is forced visible after GSAP re-measures (fail-safe for phone
+  address-bar resizes, which are also ignored).
 - **Next-section links**: the hero and each section end with the next title in
   small caps over a bobbing arrow (Products, Join, Team, Contact) for a quick
   jump down the page.
@@ -110,7 +113,9 @@ grep -n "TODO(campustech)" index.html
   mode swaps them for `src/dither.js`: a soft trail behind the cursor rendered as
   crisp single-colour dots with an 8x8 Bayer dither, dissolving dot by dot when
   the pointer rests. Text under the dots flips to a light colour so it stays readable (a
-  second, inverting layer of the same dots on top of the page). A click recolours it (in dark mode a click recolours the
+  second, inverting layer of the same dots on top of the page); trail colours
+  are deep (relative luminance at most 0.03) so even the grey copy stands out.
+  Touch-only devices skip the trail (it follows a mouse or pen only). A click recolours it (in dark mode a click recolours the
   tubes). Hiding the tubes' layer with `display: none` also pauses their renderer.
 
 Append `?debug` to the URL to expose the tubes' internals as `window.__tubes`.

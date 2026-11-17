@@ -1,4 +1,4 @@
-import { startDither } from "./dither.js?v=4727891f24"
+import { startDither } from "./dither.js?v=3bb967823c"
 import { startTubes } from "./tubes.js?v=aec2ea1b7f"
 
 // ---- Background (original script.js, with the smoothed cursor from tubes.js) ----
@@ -13,7 +13,10 @@ const isLight = () => document.documentElement.dataset.theme === "light"
 const trailCanvas = document.getElementById("trail")
 let trail = null
 let tubesApp = null
-if (!reduceMotion && trailCanvas) {
+// The trail follows a mouse or pen only, so touch-only phones skip it (two
+// full-screen layers they would composite on every scroll for nothing).
+const canHover = window.matchMedia("(hover: hover)").matches
+if (!reduceMotion && trailCanvas && canHover) {
   trail = startDither(trailCanvas)
   const sync = () => trail.setActive(isLight())
   sync()
@@ -37,17 +40,28 @@ document.body.addEventListener("click", (event) => {
   }
 })
 
-/** A random saturated colour that reads well on white. */
+/**
+ * A random deep, saturated colour for the light-mode trail. Text under the trail
+ * flips to light (see dither.js), so the trail itself must be dark for that text,
+ * the grey copy included, to stand out: lightness drops until the colour's
+ * relative luminance is at most 0.03, whatever the hue (yellow needs far less
+ * lightness than blue to get there).
+ */
 function randomInk() {
   const h = Math.random() * 360
-  const s = 0.7
-  const l = 0.48
-  const f = (n) => {
-    const k = (n + h / 30) % 12
-    const c = l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1))
-    return Math.round(c * 255).toString(16).padStart(2, "0")
+  const s = 0.75
+  const rgb = (l) =>
+    [0, 8, 4].map((n) => {
+      const k = (n + h / 30) % 12
+      return l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1))
+    })
+  const lum = (c) => {
+    const lin = c.map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
   }
-  return `#${f(0)}${f(8)}${f(4)}`
+  let l = 0.4
+  while (l > 0.1 && lum(rgb(l)) > 0.03) l -= 0.01
+  return "#" + rgb(l).map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("")
 }
 
 if (reduceMotion || !canvas) {
@@ -107,18 +121,37 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
     smoothTouch: false,
   })
 
-  // Each section's lines rise in every time it comes into view, from either
-  // direction: reset once it has scrolled fully out of view above, played again
-  // when it comes back from above, and played in reverse when scrolling back up
-  // past its start.
+  // Each section animates every time it comes into view or leaves, in the
+  // direction of the scroll. Scrolling down: lines rise in from below as the
+  // section enters, and drift up and fade as it leaves at the top. Scrolling up:
+  // lines drop in from above, bottom line first (that part shows first), and
+  // sink and fade as it leaves at the bottom.
+  // Phones resize the page when the address bar shows or hides; re-measuring on
+  // every one of those could leave a section hidden mid-scroll.
+  ScrollTrigger.config({ ignoreMobileResize: true })
   gsap.utils.toArray(".sections section").forEach((section) => {
-    gsap.from([...section.children].filter((el) => !el.matches(".next")), {
-      y: 40,
-      opacity: 0,
-      duration: 1,
-      ease: "power3.out",
-      stagger: 0.08,
-      scrollTrigger: { trigger: section, start: "top 75%", end: "bottom top", toggleActions: "play reset play reverse" },
+    const items = [...section.children].filter((el) => !el.matches(".next"))
+    gsap.set(items, { opacity: 0, y: 40 })
+    const show = (fromY, from) =>
+      gsap.fromTo(
+        items,
+        { opacity: 0, y: fromY },
+        { opacity: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
+      )
+    const hide = (toY, from) =>
+      gsap.to(items, { opacity: 0, y: toY, duration: 0.45, ease: "power2.in", stagger: { each: 0.04, from }, overwrite: true })
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top 75%",
+      end: "bottom 25%",
+      onEnter: () => show(40, "start"),
+      onLeave: () => hide(-40, "start"),
+      onEnterBack: () => show(-40, "end"),
+      onLeaveBack: () => hide(40, "end"),
+      // Fail-safe: after any re-measure, a section that is in view is shown.
+      onRefresh: (self) => {
+        if (self.isActive) gsap.set(items, { opacity: 1, y: 0, overwrite: true })
+      },
     })
   })
 }

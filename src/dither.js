@@ -13,7 +13,7 @@
 // mix-blend-mode: difference. On the page background the two cancel out to the
 // trail colour itself; on text the top layer inverts the dark ink to light.
 
-const START_COLOR = "#6958d5" // the purple from the tubes' palette; a click picks a new colour
+const START_COLOR = "#2b1d80" // deep indigo (dark enough for flipped text to read); a click picks a new colour
 const DOT = 3 // CSS px per dot; every dot is a crisp square
 const POINTS = 20 // links in the chain behind the cursor
 const FOLLOW = 0.28 // how tightly each link follows the one ahead (lower = longer tail)
