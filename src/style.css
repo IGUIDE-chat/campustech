@@ -173,6 +173,43 @@ p {
   text-align: left;
 }
 
+/* Toggle between the two layouts, bottom left, only while the hero is on screen. */
+.hero-align {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 0.2s, opacity 0.3s;
+}
+
+.hero-align:hover,
+.hero-align:focus-visible {
+  color: var(--ink);
+}
+
+.nav-scrolled .hero-align {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-align .when-left,
+.hero-left .hero-align .when-center {
+  display: none;
+}
+
+.hero-left .hero-align .when-left {
+  display: block;
+}
+
 .hero h1 .hero-sub {
   display: block;
   margin-top: 10px;
@@ -390,6 +427,22 @@ html:not(.pinned) .nav.scrolled::before {
   display: block;
   width: fit-content;
   margin: 0 auto;
+}
+
+/* Wide screens: several people per row (4 + 3), each a fixed-width column so the
+   names line up; the last row stays centred. */
+@media (min-width: 1080px) {
+  #team ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 32px 40px;
+    max-width: 1040px;
+  }
+
+  #team li {
+    width: 220px;
+  }
 }
 
 /* A name that links to a profile (LinkedIn): same weight and colour as the other

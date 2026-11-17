@@ -38,18 +38,20 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
     for block in schema or []:
         ld += f'  <script type="application/ld+json">{json.dumps(block, ensure_ascii=False)}</script>\n'
 
-    def nav_link(href, label, key):
-        current = ' class="active" aria-current="page"' if key == active else ""
+    def nav_link(href, label, key=None):
+        # Only the page's own entry is marked; in-page home links (key None) never are.
+        current = ' class="active" aria-current="page"' if key and key == active else ""
         return f'      <a href="{href}"{current}>{label}</a>\n'
 
+    home = up if absolute else f"{up}./"
     nav = (
-        nav_link(f"{up}./", "Home", "home")
-        + nav_link(f"{up}./#products", "Products", "")
-        + nav_link(f"{up}./#join", "Join", "")
-        + nav_link(f"{up}./#team", "Team", "")
+        nav_link(home, "Home", "home")
+        + nav_link(f"{home}#products", "Products")
+        + nav_link(f"{home}#join", "Join")
+        + nav_link(f"{home}#team", "Team")
         + nav_link(f"{up}past.html", "Past", "past")
         + nav_link(f"{up}articles/", "Articles", "articles")
-        + nav_link(f"{up}./#contact", "Contact", "")
+        + nav_link(f"{home}#contact", "Contact")
     )
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">

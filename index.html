@@ -35,8 +35,9 @@
   <!-- Apply the remembered theme before first paint so light mode does not flash dark. -->
   <script>
     try { if (localStorage.getItem("campustech-theme") === "light") document.documentElement.dataset.theme = "light" } catch (e) {}
-    // Layout preview: ?hero=left aligns the three hero lines to CAMPUS's left edge.
-    if (new URLSearchParams(location.search).get("hero") === "left") document.documentElement.classList.add("hero-left")
+    // Hero alignment: centred by default; "left" starts all three lines at CAMPUS's
+    // left edge. Set by the toggle at the bottom left (remembered) or ?hero=left|center.
+    try { if ((new URLSearchParams(location.search).get("hero") || localStorage.getItem("campustech-hero")) === "left") document.documentElement.classList.add("hero-left") } catch (e) {}
   </script>
   <!-- Loading screen: only appears if the page takes longer than ~0.35s, so fast
        loads never see it; hidden on window load (8s safety cut-off). Inline so it
@@ -88,6 +89,11 @@
   <div class="bg"><canvas id="canvas"></canvas></div>
   <!-- Light mode: a dithered pixel trail follows the cursor instead (src/dither.js). -->
   <canvas id="trail" class="trail" aria-hidden="true"></canvas>
+  <!-- Hero alignment toggle (centred / left). The icon shows the layout a click switches to. -->
+  <button id="hero-align" class="hero-align" type="button" aria-label="Align title left">
+    <svg class="when-center" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h13"/></svg>
+    <svg class="when-left" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M5.5 18h13"/></svg>
+  </button>
 
 
   <div id="smooth-wrapper">

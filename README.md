@@ -84,6 +84,12 @@ grep -n "TODO(campustech)" index.html
 - **Nav** is centred at the top on full-size screens (left-aligned on phones,
   clear of the cord). It is visible while the page is still, fades out while
   scrolling, and returns half a second after scrolling stops.
+- **Hero alignment**: centred by default, or all three lines starting at
+  CAMPUS's left edge. The small icon at the bottom left of the first screen
+  switches between them (remembered in `localStorage`); `?hero=left` or
+  `?hero=center` overrides it for one visit.
+- **Team** is one column on phones and tablets, and rows of four (4 + 3,
+  centred) from 1080px wide.
 - **Link previews** sit centred above the hovered link text (below it when
   there is no room above).
 - **Light mode** is the pull cord at the top right (drag it down, click it, or

@@ -27,7 +27,7 @@ if (!reduceMotion && trailCanvas) {
 // the dither trail, in dark mode the tubes. Links and the pull cord keep their own
 // behaviour.
 document.body.addEventListener("click", (event) => {
-  if (event.target.closest("a, #cord")) return
+  if (event.target.closest("a, #cord, #hero-align")) return
   if (isLight()) {
     trail?.setColor(randomInk())
   } else if (tubesApp) {
@@ -294,4 +294,21 @@ function setUpPreviews(manifest) {
   }
   window.addEventListener("scroll", hide, { passive: true })
   window.addEventListener("blur", hide)
+}
+
+// Hero alignment toggle: centred <-> left, remembered across visits.
+const heroAlign = document.getElementById("hero-align")
+if (heroAlign) {
+  const root = document.documentElement
+  const label = () =>
+    heroAlign.setAttribute("aria-label", root.classList.contains("hero-left") ? "Centre title" : "Align title left")
+  label()
+  heroAlign.addEventListener("click", (e) => {
+    e.stopPropagation() // not a background click: keep the trail colour
+    const left = root.classList.toggle("hero-left")
+    try {
+      localStorage.setItem("campustech-hero", left ? "left" : "center")
+    } catch (err) {}
+    label()
+  })
 }
