@@ -138,18 +138,26 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
   // Lines currently hidden (waiting to animate in). Only these animate in, so a
   // line that is already visible never replays on a small scroll reversal.
   const hidden = new Set(lines)
+  // Lines paused mid-animation by a change of scroll direction (see below), and
+  // the live direction (1 down, -1 up).
+  const frozen = new Set()
+  let direction = 1
   // Only lines on screen animate. A jump (nav link) enters every line it passes;
   // staggering all of them made the lines on screen wait ~2s, and the late
   // stagger then reset them to invisible after the safety net had shown them
   // (Contact stayed blank on phones). Lines passed off screen stay hidden for
   // their next entrance. One tween per line, so a later overwrite kills it
   // cleanly, and the whole cascade lasts at most 0.4s.
-  const show = (els, fromY, from) => {
+  const show = (els) => {
     const todo = els.filter((el) => hidden.has(el) && onScreen(el))
-    if (from === "end") todo.reverse()
+    // Batches fire ~0.1s late; enter from the side the page is moving toward now,
+    // not the side the trigger saw.
+    const fromY = 40 * direction
+    if (direction < 0) todo.reverse()
     const each = Math.min(0.08, 0.4 / todo.length)
     todo.forEach((el, i) => {
       hidden.delete(el)
+      frozen.delete(el)
       gsap.fromTo(
         el,
         { opacity: 0, y: fromY },
@@ -160,7 +168,10 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
   // A line is hidden again only once it is completely off screen (instantly; no
   // one sees it), ready to animate in the next time it comes into view.
   const hide = (els, y) => {
-    els.forEach((el) => hidden.add(el))
+    els.forEach((el) => {
+      hidden.add(el)
+      frozen.delete(el)
+    })
     gsap.set(els, { opacity: 0, y, overwrite: true })
   }
   // Entering: as soon as a line is 8% into the screen, in either direction.
@@ -168,8 +179,8 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
     start: "top 92%",
     end: "bottom 8%",
     interval: 0.1,
-    onEnter: (els) => show(els, 40, "start"),
-    onEnterBack: (els) => show(els, -40, "end"),
+    onEnter: (els) => show(els),
+    onEnterBack: (els) => show(els),
   })
   // Leaving: only once fully off screen. Reading pages (.prose) keep their text.
   if (repeatLines.length)
@@ -181,9 +192,33 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
       onLeave: (els) => hide(els, -40),
       onLeaveBack: (els) => hide(els, 40),
     })
-  // When scrolling stops, any line on screen still waiting (entered while off
-  // screen during a jump) animates in.
-  ScrollTrigger.addEventListener("scrollEnd", () => show(lines.filter(onScreen), 40, "start"))
+  // Reversing mid-animation made lines fight the page: a line still rising into
+  // place kept rising while the page moved down (and the other way round), most
+  // visible flicking up and down on a phone. On a direction change, lines still
+  // moving freeze where they are and only finish fading in; the leftover offset
+  // settles once scrolling stops, when it can't move against the page.
+  ScrollTrigger.create({
+    start: 0,
+    end: "max",
+    onUpdate: (self) => {
+      if (self.direction === direction) return
+      direction = self.direction
+      lines.forEach((el) => {
+        // Any pending tween counts, including one still waiting out its cascade delay.
+        if (hidden.has(el) || !gsap.getTweensOf(el).length || frozen.has(el)) return
+        frozen.add(el)
+        gsap.to(el, { opacity: 1, duration: 0.25, overwrite: true })
+      })
+    },
+  })
+  // When scrolling stops: frozen lines settle into place, and any line on screen
+  // still waiting (entered while off screen during a jump) animates in.
+  ScrollTrigger.addEventListener("scrollEnd", () => {
+    const settle = [...frozen].filter((el) => !hidden.has(el))
+    frozen.clear()
+    if (settle.length) gsap.to(settle, { y: 0, opacity: 1, duration: 0.4, ease: "power2.out", overwrite: true })
+    show(lines.filter(onScreen))
+  })
   // Fail-safe: after any re-measure, lines on screen are shown.
   ScrollTrigger.addEventListener("refresh", () => {
     const stuck = lines.filter((el) => onScreen(el) && invisible(el))

@@ -537,6 +537,41 @@ def nav_jumps_show_the_section_and_keep_it_shown(site):
 
 
 @test
+def lines_never_fight_the_scroll_direction(site):
+    """Phone: 'scrolling up and down is fighting'. A line still rising into place kept rising
+    after the page reversed (and dropping lines kept dropping), so text moved against the
+    finger. Flick down and up 6 times; at most one frame per reversal may move against it."""
+    page = site.open("/", PHONE)
+    result = page.evaluate(
+        """async () => {
+          const lines = [...document.querySelectorAll('.sections section > :not(.next), .sections section > ul > li')].filter(e => e.tagName !== 'UL')
+          const ty = e => new DOMMatrix(getComputedStyle(e).transform).m42
+          const frame = () => new Promise(r => requestAnimationFrame(r))
+          let px = 0, frames = 0, prev = lines.map(ty), prevY = scrollY
+          const sample = () => {
+            const now = lines.map(ty), dS = scrollY - prevY
+            if (Math.abs(dS) > 0.5) {
+              let f = 0
+              lines.forEach((e, i) => {
+                const r = e.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return
+                const dT = now[i] - prev[i]
+                if (Math.sign(dT) === Math.sign(dS) && Math.abs(dT) > 0.5) f += Math.abs(dT)
+              })
+              if (f) { px += f; frames++ }
+            }
+            prev = now; prevY = scrollY
+          }
+          window.scrollTo(0, 900); for (let i = 0; i < 40; i++) { await frame(); sample() }
+          for (let k = 0; k < 6; k++) for (let i = 0; i < 10; i++) { window.scrollBy(0, (k % 2 ? -1 : 1) * 45); await frame(); sample() }
+          for (let i = 0; i < 60; i++) { await frame(); sample() }
+          return { px: Math.round(px), frames }
+        }"""
+    )
+    assert result["frames"] <= 10, f"lines moved against the scroll on {result['frames']} frames ({result['px']}px)"
+    Site.close(page)
+
+
+@test
 def reading_pages_animate_once(site):
     """d6a1080: articles must not replay or fade out when scrolling back and forth."""
     page = site.open("/articles/pitch-your-idea.html")
