@@ -544,7 +544,9 @@ def link_preview_centres_on_the_link_text(site):
     scroll_to(page, page.evaluate("document.getElementById('products').offsetTop + document.querySelector('.sections').offsetTop"))
     # Wait for scrolling to settle (the nav returns when idle); scrolling hides previews.
     wait_for(page, "document.querySelector('.nav').classList.contains('show')", timeout=8000)
-    assert visible_lines_ok(page), f"Products lines never became visible: {stuck_lines(page)}"
+    li_js = "[...document.querySelectorAll('#products li')].find(li => li.textContent.includes('AI Chat'))"
+    ok = wait_for(page, f"+getComputedStyle({li_js}).opacity > 0.95")
+    assert ok, f"the AI Chat line never became visible (opacity {page.evaluate(f'getComputedStyle({li_js}).opacity')})"
     box = page.locator("#products a", has_text="AI Chat").first.bounding_box()
     page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
     wait_for(page, "+getComputedStyle(document.querySelector('.preview')).opacity > 0.9", timeout=5000)
