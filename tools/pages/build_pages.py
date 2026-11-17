@@ -21,10 +21,11 @@ UPDATED = "2026-11-17"
 PUBLISHER = {"@type": "Organization", "@id": SITE + "#org", "name": ORG_NAME, "url": SITE}
 
 
-def page(path, title, description, body, active="", schema=None, og_type="website"):
+def page(path, title, description, body, active="", schema=None, og_type="website", noindex=False, absolute=False):
     depth = path.count("/")
-    up = "../" * depth
+    up = "/" if absolute else "../" * depth
     url = SITE + ("" if path.endswith("index.html") and depth == 0 else path.replace("index.html", ""))
+    robots = "noindex, follow" if noindex else "index, follow, max-image-preview:large"
     ld = ""
     for block in schema or []:
         ld += f'  <script type="application/ld+json">{json.dumps(block, ensure_ascii=False)}</script>\n'
@@ -50,7 +51,7 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <title>{title}</title>
   <meta name="description" content="{description}">
   <link rel="canonical" href="{url}">
-  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="robots" content="{robots}">
   <meta property="og:type" content="{og_type}">
   <meta property="og:site_name" content="Campus Tech">
   <meta property="og:title" content="{title}">
@@ -94,7 +95,7 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
 {body}
   </main>
   <footer class="site-footer">
-    <p>© 2026 Campus Tech @ UIUC · <a href="{up}articles/">Articles</a> · <a href="{up}privacy.html">Privacy</a> · <a href="{up}terms.html">Terms</a></p>
+    <p>© 2026 Campus Tech @ UIUC · <a href="{up}articles/">Articles</a> · <a href="{up}faq.html">FAQ</a> · <a href="{up}privacy.html">Privacy</a> · <a href="{up}terms.html">Terms</a></p>
     <p>A registered student organization at the University of Illinois Urbana-Champaign; not an official University website. Background by <a href="https://codepen.io/soju22/pen/qEbdVjK" target="_blank" rel="noopener">Kevin Levron</a>, CC BY-NC-SA 4.0.</p>
   </footer>
   </div>
@@ -396,10 +397,78 @@ for a in ARTICLES:
     )
 
 
+# ---- FAQ (also the main GEO page: short, factual answers) ------------------- #
+
+FAQ = [
+    ("What is Campus Tech?", "Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026."),
+    ("What does Campus Tech build?", "AI Chat (iguide.chat/chat) for questions about UIUC, Dorms (iguide.chat/dorms) for comparing UIUC residence halls, a 3D room scan, apartment comparison, websites for registered student organizations, and tools for local businesses."),
+    ("Who leads Campus Tech?", "Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director) and Chris Lopez (Treasurer), with Skylar Chu as advisor."),
+    ("How do I join Campus Tech?", "Submit the membership application and complete a short interview. Fall 2026 Round 1 applications close at 11:59 PM Central Time on Sunday, November 29, 2026."),
+    ("Which roles are open?", "Programming, design, marketing, business and administration."),
+    ("Do I need coding experience to join?", "No. Only programming roles involve code."),
+    ("Who can join?", "Any UIUC student, of any major and year. Domestic and international students are both welcome."),
+    ("Can I suggest a product idea?", "Yes. Anyone can pitch an idea through the Pitch Your Idea form; no full plan or coding is needed."),
+    ("How do I contact Campus Tech?", f"Email {EMAIL}."),
+    ("Is this an official University of Illinois website?", "No. Campus Tech is a registered student organization, and this is not an official University website."),
+]
+
+faq_html = "".join(f"        <dt>{q}</dt>\n        <dd>{a}</dd>\n" for q, a in FAQ)
+PAGES["faq.html"] = page(
+    "faq.html",
+    "FAQ · Campus Tech @ UIUC",
+    "Answers about Campus Tech @ UIUC: what it is, what it builds, who leads it, and how to join or pitch an idea.",
+    f"""    <section class="prose">
+      <h1>Frequently asked questions</h1>
+      <p class="meta">Last updated: November 17, 2026</p>
+      <dl>
+{faq_html}      </dl>
+      <p>Ready to apply? Read <a href="articles/fall-2026-recruiting.html">how to join</a>, or <a href="{PITCH}" target="_blank" rel="noopener">pitch an idea</a>.</p>
+    </section>""",
+    schema=[
+        breadcrumbs(("Home", ""), ("FAQ", "faq.html")),
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ
+            ],
+        },
+    ],
+)
+
+# ---- 404 and Coming soon (not indexed, not in the sitemap) ------------------ #
+
+PAGES["404.html"] = page(
+    "404.html",
+    "Page not found · Campus Tech",
+    "This page does not exist.",
+    """    <section>
+      <h2>404</h2>
+      <p>This page doesn't exist.</p>
+      <p><a href="/">Back to Campus Tech</a> · <a href="/articles/">Articles</a></p>
+    </section>""",
+    noindex=True,
+    absolute=True,
+)
+
+PAGES["coming-soon.html"] = page(
+    "coming-soon.html",
+    "Coming soon · Campus Tech",
+    "This part of Campus Tech is coming soon.",
+    f"""    <section>
+      <h2>Coming soon</h2>
+      <p>We're still building this one.</p>
+      <p class="note">Want to help build it? <a href="{APPLY}" target="_blank" rel="noopener">Apply</a> · or go <a href="./">back home</a></p>
+    </section>""",
+    noindex=True,
+)
+
+NOT_INDEXED = {"404.html", "coming-soon.html"}
+
 # ---- Sitemap and llms.txt follow the pages above ---------------------------- #
 
 def sitemap():
-    urls = [""] + [p.replace("index.html", "") for p in PAGES]
+    urls = [""] + [p.replace("index.html", "") for p in PAGES if p not in NOT_INDEXED]
     rows = "".join(
         f"  <url><loc>{SITE}{u}</loc><lastmod>{UPDATED}</lastmod></url>\n" for u in urls
     )
@@ -427,11 +496,51 @@ def llms_txt():
     for a in ARTICLES:
         lines.append(f"- [{a['title']}]({SITE}articles/{a['slug']}.html): {a['desc']}")
     lines += [
+        f"- [FAQ]({SITE}faq.html): short answers about the organization",
         f"- [Privacy Policy]({SITE}privacy.html)",
         f"- [Terms of Use]({SITE}terms.html)",
         "",
     ]
     return "\n".join(lines)
+
+
+def text_of(html):
+    """Readable text of a page's <main>, for llms-full.txt."""
+    import html as htmllib
+    import re
+
+    main = re.search(r"<main[^>]*>(.*)</main>", html, re.S)
+    body = main.group(1) if main else html
+    body = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+    body = re.sub(r"</(b|a)>\s*<span>", r"</> — <span>", body)  # "Name — description"
+    body = re.sub(r"<(h1|h2)[^>]*>", "\n## ", body)
+    body = re.sub(r"<dt[^>]*>", "\nQ: ", body)
+    body = re.sub(r"<dd[^>]*>", "\nA: ", body)
+    body = re.sub(r"<li[^>]*>", "\n- ", body)
+    body = re.sub(r"</(p|ul|ol|dl|section|h1|h2|dd)>", "\n", body)
+    body = re.sub(r"<[^>]+>", "", body)
+    body = htmllib.unescape(body)
+    out, blank = [], False
+    for line in (l.strip() for l in body.splitlines()):
+        if not line:
+            if not blank:
+                out.append("")
+            blank = True
+        else:
+            out.append(line)
+            blank = False
+    return "\n".join(out).strip()
+
+
+def llms_full():
+    """Full text of every indexed page (home page included) in one file."""
+    home = (ROOT / "index.html").read_text(encoding="utf-8")
+    parts = [llms_txt(), "", "---", "", f"# Home ({SITE})", "", text_of(home)]
+    for path, html in PAGES.items():
+        if path in NOT_INDEXED or path == "past.html":
+            continue
+        parts += ["", "---", "", f"# {SITE}{path.replace('index.html', '')}", "", text_of(html)]
+    return "\n".join(parts) + "\n"
 
 
 def main():
@@ -442,7 +551,8 @@ def main():
         print("wrote", path)
     (ROOT / "sitemap.xml").write_text(sitemap(), encoding="utf-8")
     (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8")
-    print("wrote sitemap.xml, llms.txt")
+    (ROOT / "llms-full.txt").write_text(llms_full(), encoding="utf-8")
+    print("wrote sitemap.xml, llms.txt, llms-full.txt")
 
 
 if __name__ == "__main__":

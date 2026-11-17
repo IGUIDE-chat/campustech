@@ -1,0 +1,355 @@
+# Campus Tech @ University of Illinois Urbana-Champaign
+
+> Campus Tech is a registered student organization at the University of Illinois Urbana-Champaign (UIUC) that builds products for campus life. Registered as an RSO in November 2026.
+
+Key facts:
+- Products: AI Chat (https://iguide.chat/chat) for questions about UIUC; Dorms (https://iguide.chat/dorms), a guide for comparing UIUC residence halls; 3D Room Scan; apartment comparison; websites for registered student organizations; tools for local businesses.
+- Officers: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director), Chris Lopez (Treasurer). Advisor: Skylar Chu.
+- Recruiting: Fall 2026 Round 1, roles in programming, design, marketing, business and administration. Application plus short interview. Deadline 11:59 PM CT, Sunday November 29, 2026. Apply: https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform
+- Product ideas from any student: https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform
+- Contact: techadmin.campustech@gmail.com
+
+## Pages
+- [Home](https://campustech.iguide.chat/): products, recruiting, team and contact
+- [Past](https://campustech.iguide.chat/past.html): past products and presidents
+- [Articles](https://campustech.iguide.chat/articles/): news and guides
+- [Introducing Campus Tech @ UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech.html): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
+- [Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply](https://campustech.iguide.chat/articles/fall-2026-recruiting.html): Campus Tech @ UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+- [Have an Idea for a Campus Product? Pitch It to Campus Tech](https://campustech.iguide.chat/articles/pitch-your-idea.html): Campus Tech @ UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
+- [FAQ](https://campustech.iguide.chat/faq.html): short answers about the organization
+- [Privacy Policy](https://campustech.iguide.chat/privacy.html)
+- [Terms of Use](https://campustech.iguide.chat/terms.html)
+
+
+---
+
+# Home (https://campustech.iguide.chat/)
+
+## Products
+
+- AI Chat — Ask anything about UIUC
+
+- Dorms — Pick your housing
+
+- 3D Room Scan — Walk through rooms in 3D
+
+- Apartments — Compare places
+
+- RSO websites — We build a site for any RSO
+
+- Local — Tools for nearby businesses · later
+
+- Your idea — Pitch it to us
+
+## Join
+
+Fall 2026 · Round 1
+
+Programming · Design · Marketing · Business · Administration
+
+Apply
+by Nov 29, 11:59 PM CT
+
+Application + short interview. Any major, any year.
+
+Want to join as an advisor? Get in touch
+
+## Team
+
+- Michael Li — President
+
+- George Wang — Tech Lead
+
+- Lai Wei — Business Director
+
+- Nancy Zhang — Membership Director
+
+- Apply now — Marketing VP
+
+- Chris Lopez — Treasurer
+
+- Skylar Chu — Advisor
+
+## Contact
+
+techadmin.campustech@gmail.com
+
+---
+
+# https://campustech.iguide.chat/privacy.html
+
+## Privacy Policy
+
+Last updated: November 17, 2026
+
+This policy explains what information the Campus Tech website (campustech.iguide.chat) handles. Campus Tech @ University of Illinois Urbana-Champaign ("Campus Tech", "we") is a registered student organization at the University of Illinois Urbana-Champaign.
+
+## What this website collects
+
+This is a static website. It has no accounts, no sign-up, no cookies and no analytics or advertising trackers. We do not sell or share personal information.
+
+- Theme preference. If you switch between dark and light mode, your choice is stored in your browser's local storage on your own device so the site remembers it. It is never sent to us. You can clear it at any time in your browser settings.
+
+- Server logs. Like any website, the hosting provider that serves these pages may keep standard technical logs (for example IP address, browser type and the page requested) for security and reliability. We do not use these logs to identify visitors.
+
+## Third-party services
+
+- Google Fonts. The page font is loaded from Google, which receives your IP address when the font is requested. See Google's privacy policy.
+
+- Google Forms. Our membership application and idea submission forms are hosted on Google Forms. What you enter there is collected by Google and shared with Campus Tech officers. We use it only to review applications and ideas and to contact you, and we do not sell it.
+
+- Links to other sites. Links such as iguide.chat and GitHub lead to sites with their own privacy policies.
+
+## Form submissions
+
+Application and idea submissions are accessible only to current Campus Tech officers who need them. We keep them for as long as they are useful for recruiting or following up on an idea, and you can ask us to delete your submission at any time.
+
+## Children
+
+This website is meant for university students and is not directed at children under 13.
+
+## Your choices
+
+To ask what we hold about you, or to have a form submission corrected or deleted, email techadmin.campustech@gmail.com.
+
+## Changes
+
+If this policy changes, we will update the date at the top of this page.
+
+---
+
+# https://campustech.iguide.chat/terms.html
+
+## Terms of Use
+
+Last updated: November 17, 2026
+
+By using this website (campustech.iguide.chat) you agree to these terms.
+
+## About Campus Tech
+
+Campus Tech @ University of Illinois Urbana-Champaign is a registered student organization. This is not an official website of the University of Illinois, and the University is not responsible for its content.
+
+## Use of this website
+
+You may browse and share this website for personal, non-commercial purposes. Please do not misuse it, for example by attempting to disrupt it or by misrepresenting yourself as Campus Tech.
+
+## Content and credits
+
+Text and images on this site belong to Campus Tech unless noted otherwise. Parts of the site use third-party work under their own licenses:
+
+- The dark-mode background is based on Tubes Cursor by Kevin Levron, licensed CC BY-NC-SA 4.0.
+
+- The light switch uses pullcord by Sarthak Navalekar (MIT license).
+
+- Smooth scrolling uses GSAP under the GreenSock standard license.
+
+- The light-mode cursor trail is our own implementation, inspired by DitherCursor by Eniyan Raja.
+
+## Links to other websites
+
+This site links to other websites, such as iguide.chat, Google Forms and GitHub. We are not responsible for their content or practices.
+
+## No warranty
+
+The website is provided "as is". We try to keep information accurate and current, but we make no guarantees, and dates such as application deadlines may change. To the extent permitted by law, Campus Tech is not liable for any loss arising from use of this website.
+
+## Changes
+
+We may update these terms; the date at the top shows the latest version.
+
+## Contact
+
+Questions: techadmin.campustech@gmail.com.
+
+---
+
+# https://campustech.iguide.chat/articles/
+
+## Articles
+
+News and guides from Campus Tech @ UIUC.
+
+## Introducing Campus Tech @ UIUC
+
+Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
+
+## Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply
+
+Campus Tech @ UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+
+## Have an Idea for a Campus Product? Pitch It to Campus Tech
+
+Campus Tech @ UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
+
+---
+
+# https://campustech.iguide.chat/articles/introducing-campus-tech.html
+
+Articles
+
+## Introducing Campus Tech @ UIUC
+
+Published November 17, 2026 · Campus Tech @ UIUC
+
+Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.
+
+## What we build
+
+We focus on tools students actually use day to day:
+
+- AI Chat on iguide.chat: ask questions about UIUC and campus life.
+
+- Dorms on iguide.chat/dorms: compare UIUC residence halls to help choose housing.
+
+- 3D Room Scan: walk through rooms in 3D.
+
+- Apartments: compare places to live off campus.
+
+- RSO websites: we build a website for any registered student organization.
+
+- Local: tools for nearby businesses.
+
+## Who we are
+
+The organization is run by student officers: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director) and Chris Lopez (Treasurer), with Skylar Chu as advisor. Members come from different majors and years, and both domestic and international students are welcome.
+
+## Get involved
+
+Fall 2026 Round 1 recruiting is open for programming, design, marketing, business and administration roles. Read how to apply, or pitch a product idea. You can also email us at techadmin.campustech@gmail.com.
+
+---
+
+# https://campustech.iguide.chat/articles/fall-2026-recruiting.html
+
+Articles
+
+## Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply
+
+Published November 17, 2026 · Campus Tech @ UIUC
+
+Campus Tech @ UIUC is recruiting new members for Fall 2026 Round 1. Students of any major and year can apply, and both domestic and international students are welcome.
+
+## Open roles
+
+- Programming: build our products, from websites to AI features.
+
+- Design: design product interfaces and visuals.
+
+- Marketing: content and social media, including Xiaohongshu.
+
+- Business: partnerships and sponsorship.
+
+- Administration: operations that keep the organization running.
+
+## How to apply
+
+- Fill in the membership application. It takes about 5 minutes.
+
+- We will reach out by email to schedule a short interview.
+
+## Deadline
+
+Round 1 applications close at 11:59 PM Central Time on Sunday, November 29, 2026, the last day of Fall Break. Recruiting happens in several rounds, so if you miss this one, watch for the next.
+
+## Frequently asked questions
+
+Q: Who can join Campus Tech?
+
+A: Any student at the University of Illinois Urbana-Champaign, of any major and year. Domestic and international students are both welcome.
+
+Q: Do I need coding experience?
+
+A: No. Only programming roles involve code; design, marketing, business and administration roles do not.
+
+Q: How does joining work?
+
+A: Every member joins through the application and a short interview.
+
+Q: When is the Fall 2026 Round 1 deadline?
+
+A: 11:59 PM Central Time on Sunday, November 29, 2026.
+
+Q: Can I join as an advisor?
+
+A: Yes. Faculty and staff interested in advising can get in touch through the same application form or by emailing techadmin.campustech@gmail.com.
+
+---
+
+# https://campustech.iguide.chat/articles/pitch-your-idea.html
+
+Articles
+
+## Have an Idea for a Campus Product? Pitch It to Campus Tech
+
+Published November 17, 2026 · Campus Tech @ UIUC
+
+Have an idea for a product that would make campus life better? You can pitch it to Campus Tech @ UIUC, even if you are not a member.
+
+## What to tell us
+
+- Who would use it: which students or groups on campus.
+
+- What problem it solves: what is hard, slow or missing today.
+
+- What skills it needs: what you would need from other people to build it.
+
+You do not need a full plan, and you do not need to know how to code.
+
+## How to pitch
+
+Use the Pitch Your Idea form. Our team reads every idea, and we will reach out by email if we want to talk.
+
+## What happens next
+
+Promising ideas can become Campus Tech projects, built by members across programming, design, marketing and business. If you would like to help build it yourself, also apply to join.
+
+---
+
+# https://campustech.iguide.chat/faq.html
+
+## Frequently asked questions
+
+Last updated: November 17, 2026
+
+Q: What is Campus Tech?
+
+A: Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.
+
+Q: What does Campus Tech build?
+
+A: AI Chat (iguide.chat/chat) for questions about UIUC, Dorms (iguide.chat/dorms) for comparing UIUC residence halls, a 3D room scan, apartment comparison, websites for registered student organizations, and tools for local businesses.
+
+Q: Who leads Campus Tech?
+
+A: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director) and Chris Lopez (Treasurer), with Skylar Chu as advisor.
+
+Q: How do I join Campus Tech?
+
+A: Submit the membership application and complete a short interview. Fall 2026 Round 1 applications close at 11:59 PM Central Time on Sunday, November 29, 2026.
+
+Q: Which roles are open?
+
+A: Programming, design, marketing, business and administration.
+
+Q: Do I need coding experience to join?
+
+A: No. Only programming roles involve code.
+
+Q: Who can join?
+
+A: Any UIUC student, of any major and year. Domestic and international students are both welcome.
+
+Q: Can I suggest a product idea?
+
+A: Yes. Anyone can pitch an idea through the Pitch Your Idea form; no full plan or coding is needed.
+
+Q: How do I contact Campus Tech?
+
+A: Email techadmin.campustech@gmail.com.
+
+Q: Is this an official University of Illinois website?
+
+A: No. Campus Tech is a registered student organization, and this is not an official University website.
+
+Ready to apply? Read how to join, or pitch an idea.

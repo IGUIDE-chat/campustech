@@ -147,13 +147,29 @@ p {
   color: var(--muted);
 }
 
+/* The hero is one heading ("Campus Tech") for search engines and screen readers,
+   drawn exactly like the original two lines: CAMPUS at 80px/700, TECH at 60px/500,
+   10px apart. */
+.hero h1 {
+  text-align: center; /* TECH is a block inside the heading; centre it under CAMPUS */
+}
+
+.hero h1 .hero-sub {
+  display: block;
+  margin-top: 10px;
+  font-size: 60px;
+  font-weight: 500;
+  line-height: 100%; /* its own, not the 80px inherited from CAMPUS */
+}
+
 /* Small screens: keep the original proportions. */
 @media (max-width: 520px) {
   h1 {
     font-size: 16vw;
   }
 
-  h2 {
+  h2,
+  .hero h1 .hero-sub {
     font-size: 12vw;
   }
 }
@@ -176,11 +192,11 @@ p {
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 16px;
-  padding: 18px clamp(16px, 4vw, 40px);
-  /* Leave room on the right for the pull cord. */
-  padding-right: calc(var(--pullcord-right) + 2.5rem);
+  /* main.js sets --nav-left/--nav-right so the links are centred on the page when
+     they fit and shifted just clear of the pull cord when they don't. */
+  padding: 18px var(--nav-right, calc(var(--pullcord-right) + 2.5rem)) 18px var(--nav-left, 16px);
   font-family: "Montserrat", sans-serif;
   font-size: 13px;
   font-weight: 500;
@@ -237,20 +253,12 @@ html:not(.pinned) .nav.scrolled::before {
   color: var(--ink);
 }
 
-/* Full-size screens: centred over the centred hero, clear of the cord on both sides. */
-@media (min-width: 721px) {
-  .nav {
-    justify-content: center;
-    padding-left: calc(var(--pullcord-right) + 2.5rem);
-  }
-}
-
 /* Links wrap onto a second line when they don't fit, so none is ever clipped. */
 .nav-links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: inherit;
   gap: 6px clamp(12px, 3vw, 28px);
+  justify-content: flex-start;
 }
 
 /* Medium screens: slightly tighter text so all six links usually fit on one line. */
@@ -267,8 +275,6 @@ html:not(.pinned) .nav.scrolled::before {
 
 @media (max-width: 520px) {
   .nav {
-    justify-content: flex-start;
-    padding-left: 16px;
     font-size: 11px;
     letter-spacing: 0.06em;
   }
@@ -280,7 +286,6 @@ html:not(.pinned) .nav.scrolled::before {
 
 @media (max-width: 360px) {
   .nav {
-    padding-left: 12px;
     font-size: 10px;
     letter-spacing: 0.02em;
   }
@@ -377,6 +382,68 @@ html:not(.pinned) .nav.scrolled::before {
 .sections a.person:hover,
 .sections a.person:focus-visible {
   text-decoration-color: currentColor;
+}
+
+/* Contact: a row of brand icons. Live links in the muted tone (ink on hover);
+   accounts that don't exist yet are faint and not clickable. */
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 6px;
+}
+
+.socials a,
+.socials .soon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+}
+
+.socials svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.sections .socials a {
+  color: var(--muted);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.sections .socials a:hover,
+.sections .socials a:focus-visible {
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.sections .socials a.soon {
+  color: var(--faint);
+}
+
+.sections .socials a.soon:hover,
+.sections .socials a.soon:focus-visible {
+  color: var(--muted);
+}
+
+/* Xiaohongshu's mark is a wordmark; drawn as its app icon: a rounded square with
+   the wordmark knocked out in the page colour, so it matches the other icons. */
+.socials .knockout {
+  fill: var(--page);
+}
+
+/* Phones: keep all seven icons on one line. */
+@media (max-width: 400px) {
+  .socials {
+    gap: 14px;
+  }
+
+  .socials a,
+  .socials .soon {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 /* Narrow screens: tighter sections, product names on their own line. */

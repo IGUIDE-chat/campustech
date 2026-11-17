@@ -165,12 +165,37 @@ function highlight() {
 // have no hero, so they always get it).
 const hasHero = !!document.querySelector(".hero")
 const wrapper = document.getElementById("smooth-wrapper")
-// Keep the content fade under the nav as tall as the nav (it wraps to two rows
-// on narrow screens).
-const syncNavHeight = () =>
-  document.documentElement.style.setProperty("--nav-h", `${nav.offsetHeight}px`)
-new ResizeObserver(syncNavHeight).observe(nav)
-syncNavHeight()
+// Nav position, measured rather than set per breakpoint: centred on the page
+// when the links fit there, otherwise shifted left just enough to clear the pull
+// cord, and wrapped onto two rows only when they can't fit on one line at all.
+const navLinks = nav.querySelector(".nav-links")
+const EDGE = 16 // min gap to the left edge of the screen
+const CORD_GAP = 24 // min gap between the last link and the cord
+function layoutNav() {
+  const root = document.documentElement
+  const vw = root.clientWidth
+  const cordBox = document.querySelector("#cord > *")?.getBoundingClientRect()
+  const cordX = cordBox && cordBox.width ? cordBox.left + cordBox.width / 2 : vw
+  // Natural one-line width of the links.
+  navLinks.style.flexWrap = "nowrap"
+  navLinks.style.width = "max-content"
+  const w = navLinks.getBoundingClientRect().width
+  navLinks.style.flexWrap = ""
+  navLinks.style.width = ""
+  const maxRight = cordX - CORD_GAP // the links must end before this
+  let left = (vw - w) / 2 // centred on the page
+  if (left + w > maxRight) left = maxRight - w // shift clear of the cord
+  left = Math.max(EDGE, left) // and never off the left edge (then it wraps)
+  root.style.setProperty("--nav-left", `${Math.round(left)}px`)
+  root.style.setProperty("--nav-right", `${Math.max(EDGE, Math.round(vw - maxRight))}px`)
+  // Keep the content fade under the nav as tall as the nav.
+  root.style.setProperty("--nav-h", `${nav.offsetHeight}px`)
+}
+window.addEventListener("resize", layoutNav)
+document.fonts?.ready.then(layoutNav)
+// The cord mounts a moment after load (React); lay out again once it is there.
+new MutationObserver(layoutNav).observe(document.getElementById("cord") || document.body, { childList: true })
+layoutNav()
 function updateBackdrop() {
   const scrolled = !hasHero || window.scrollY > window.innerHeight * 0.5
   nav.classList.toggle("scrolled", scrolled)
