@@ -1,6 +1,8 @@
 """Render the placeholder logo: the hero lockup (CAMPUS / TECH / tagline, left
 aligned) centred in a square. Writes assets/logo.png (light) and
-assets/logo-dark.png (dark), 1024x1024. Run: python tools/images/logo.py"""
+assets/logo-dark.png (dark), 1024x1024, and the browser-tab / home-screen icons
+from the same lockup, cropped tight (favicon.ico, favicon-32.png,
+favicon-192.png, apple-touch-icon.png). Run: python tools/images/logo.py"""
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -14,7 +16,7 @@ THEMES = {
 }
 
 
-def html(t):
+def html(t, pad=PAD):
     # Proportions from the site: CAMPUS 80px/700, TECH 60px/500, tagline 16px/500,
     # 10px between lines. Everything is set in units of CAMPUS's size (--u) and
     # scaled so CAMPUS fills the width between the paddings.
@@ -32,7 +34,7 @@ def html(t):
 <script>
   document.fonts.ready.then(() => {{
     const l = document.querySelector('.lockup'), c = document.querySelector('.c')
-    l.style.setProperty('--u', (100 * ({SIZE} - 2 * {PAD}) / c.getBoundingClientRect().width) + 'px')
+    l.style.setProperty('--u', (100 * ({SIZE} - 2 * {pad}) / c.getBoundingClientRect().width) + 'px')
     document.body.dataset.ready = '1'
   }})
 </script></body></html>"""
@@ -50,4 +52,18 @@ with sync_playwright() as pw:
         page.wait_for_timeout(200)
         page.screenshot(path=str(ROOT / "assets" / name))
         print("wrote assets/" + name)
+    # Tab icons: the light lockup with almost no margin, so the words are as big
+    # as a 16-32px square allows; scaled down from 1024px for clean edges.
+    import io
+    from PIL import Image
+    page.set_content(html(THEMES["logo.png"], pad=40), wait_until="networkidle")
+    page.wait_for_selector("body[data-ready]")
+    page.wait_for_timeout(200)
+    with Image.open(io.BytesIO(page.screenshot())) as big:
+        big = big.convert("RGB")
+        for size, name in [(32, "favicon-32.png"), (192, "favicon-192.png"), (180, "apple-touch-icon.png")]:
+            big.resize((size, size), Image.LANCZOS).save(ROOT / "assets" / name)
+            print("wrote assets/" + name)
+        big.resize((48, 48), Image.LANCZOS).save(ROOT / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
+        print("wrote favicon.ico")
     browser.close()

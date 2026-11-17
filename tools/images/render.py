@@ -1,10 +1,10 @@
-"""Render the social preview image (assets/og.png) and the iPhone icon
-(assets/apple-touch-icon.png) with Playwright. Run: python tools/images/render.py"""
+"""Render the social preview image (assets/og.png) and the "coming soon" hover
+cards with Playwright. (Icons come from tools/images/logo.py.)
+Run: python tools/images/render.py"""
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
-FAVICON = (ROOT / "assets" / "favicon.svg").read_text(encoding="utf-8")
 
 OG = """<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
@@ -29,9 +29,6 @@ OG = """<!doctype html><html><head><meta charset="utf-8">
 <div class="text"><h1>CAMPUS</h1><h2>TECH</h2><p>We build products for campus life.</p></div>
 <div class="url">campustech.iguide.chat · UIUC</div>
 </body></html>"""
-
-ICON = f"""<!doctype html><html><body style="margin:0;width:180px;height:180px;overflow:hidden">
-<div style="width:180px;height:180px">{FAVICON.replace('<svg ', '<svg width="180" height="180" ')}</div></body></html>"""
 
 # "Coming soon" hover cards for the placeholder contact icons (data-preview in
 # index.html): the platform's icon, its name and "Coming soon", read from the page.
@@ -64,9 +61,6 @@ with sync_playwright() as pw:
     page.set_content(OG, wait_until="networkidle")
     page.wait_for_timeout(500)
     page.screenshot(path=str(ROOT / "assets" / "og.png"))
-    page = browser.new_page(viewport={"width": 180, "height": 180})
-    page.set_content(ICON)
-    page.screenshot(path=str(ROOT / "assets" / "apple-touch-icon.png"))
     from PIL import Image
     import io
     page = browser.new_page(viewport={"width": 1280, "height": 800})
@@ -77,4 +71,4 @@ with sync_playwright() as pw:
             im.convert("RGB").resize((640, 400), Image.LANCZOS).save(ROOT / path, "WEBP", quality=82)
         print("wrote", path)
     browser.close()
-print("wrote assets/og.png, assets/apple-touch-icon.png")
+print("wrote assets/og.png")

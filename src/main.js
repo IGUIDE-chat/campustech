@@ -124,7 +124,12 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
       .filter((el) => !el.matches(".next"))
       .flatMap((el) => (el.tagName === "UL" ? [...el.children] : [el]))
   const sections = gsap.utils.toArray(".sections section")
+  // Reading pages (articles, FAQ, privacy, terms: .prose) animate each line once,
+  // the first time it comes into view; after that the text simply stays put.
+  const isProse = (el) => !!el.closest(".prose")
   const lines = sections.flatMap(linesOf)
+  const repeatLines = lines.filter((el) => !isProse(el))
+  const onceLines = lines.filter(isProse)
   const onScreen = (el) => {
     const r = el.getBoundingClientRect()
     return r.bottom > 0 && r.top < window.innerHeight
@@ -138,7 +143,20 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
       { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
     )
   const hide = (els, toY) => gsap.to(els, { opacity: 0, y: toY, duration: 0.4, ease: "power2.in", overwrite: true })
-  ScrollTrigger.batch(lines, {
+  const shown = new WeakSet()
+  const showOnce = (els, fromY) => {
+    const fresh = els.filter((el) => !shown.has(el))
+    fresh.forEach((el) => shown.add(el))
+    if (fresh.length) show(fresh, fromY, "start")
+  }
+  if (onceLines.length)
+    ScrollTrigger.batch(onceLines, {
+      start: "top 92%",
+      interval: 0.1,
+      onEnter: (els) => showOnce(els, 40),
+      onEnterBack: (els) => showOnce(els, -40),
+    })
+  if (repeatLines.length) ScrollTrigger.batch(repeatLines, {
     start: "top 92%",
     end: "bottom 8%",
     interval: 0.1,

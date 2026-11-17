@@ -75,7 +75,8 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <meta name="twitter:description" content="{description}">
   <meta name="twitter:image" content="{SITE}assets/og.png">
   <meta name="theme-color" content="#0d0d12">
-  <link rel="icon" href="{up}assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="{up}assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="{up}assets/favicon-192.png" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="{up}assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
