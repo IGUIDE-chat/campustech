@@ -1,4 +1,4 @@
-import { startDither } from "./dither.js?v=3bb967823c"
+import { startDither } from "./dither.js?v=1854ce10a1"
 import { startTubes } from "./tubes.js?v=aec2ea1b7f"
 
 // ---- Background (original script.js, with the smoothed cursor from tubes.js) ----
@@ -40,28 +40,17 @@ document.body.addEventListener("click", (event) => {
   }
 })
 
-/**
- * A random deep, saturated colour for the light-mode trail. Text under the trail
- * flips to light (see dither.js), so the trail itself must be dark for that text,
- * the grey copy included, to stand out: lightness drops until the colour's
- * relative luminance is at most 0.03, whatever the hue (yellow needs far less
- * lightness than blue to get there).
- */
+/** A random saturated colour that reads well on white. */
 function randomInk() {
   const h = Math.random() * 360
-  const s = 0.75
-  const rgb = (l) =>
-    [0, 8, 4].map((n) => {
-      const k = (n + h / 30) % 12
-      return l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1))
-    })
-  const lum = (c) => {
-    const lin = c.map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
-    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+  const s = 0.7
+  const l = 0.48
+  const f = (n) => {
+    const k = (n + h / 30) % 12
+    const c = l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1))
+    return Math.round(c * 255).toString(16).padStart(2, "0")
   }
-  let l = 0.4
-  while (l > 0.1 && lum(rgb(l)) > 0.03) l -= 0.01
-  return "#" + rgb(l).map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("")
+  return `#${f(0)}${f(8)}${f(4)}`
 }
 
 if (reduceMotion || !canvas) {

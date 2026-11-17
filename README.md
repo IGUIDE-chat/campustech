@@ -114,9 +114,10 @@ grep -n "TODO(campustech)" index.html
   neon tubes rely on glow and metal reflections that only read on dark, so light
   mode swaps them for `src/dither.js`: a soft trail behind the cursor rendered as
   crisp single-colour dots with an 8x8 Bayer dither, dissolving dot by dot when
-  the pointer rests. Text under the dots flips to a light colour so it stays readable (a
-  second, inverting layer of the same dots on top of the page); trail colours
-  are deep (relative luminance at most 0.03) so even the grey copy stands out.
+  the pointer rests. Text under the dots turns white so it stays readable, grey copy
+  included, while the trail keeps its exact colour (the same dots drawn on two
+  more layers on top of the page, one inverting and one brightening; see the
+  note in `dither.js`).
   Touch-only devices skip the trail (it follows a mouse or pen only). A click recolours it (in dark mode a click recolours the
   tubes). Hiding the tubes' layer with `display: none` also pauses their renderer.
 
