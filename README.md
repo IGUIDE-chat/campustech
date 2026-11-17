@@ -95,13 +95,13 @@ grep -n "TODO(campustech)" index.html
 - **Team** fills rows of fixed-width columns, as many as fit: one column on
   phones, 2 per row from 560px, 3 from 820px, 4 (the cap) from 1080px; the last
   row is centred.
-- **Section animation** runs every time, in the scroll direction: scrolling
-  down, lines rise in from below and drift up as the section leaves; scrolling
-  up, they drop in from above (bottom line first) and sink as it leaves. Any
-  section in view is forced visible after GSAP re-measures (fail-safe for phone
-  address-bar resizes, which are also ignored). A second safety net (an
-  IntersectionObserver, independent of GSAP) fades in any line that is on
-  screen but still invisible a second later, so text never stays hidden.
+- **Line animation**: every heading, paragraph and list item animates on its
+  own as it enters or leaves the screen (GSAP `ScrollTrigger.batch`), in the
+  scroll direction: rising in from below when scrolling down, dropping in from
+  above (bottom first) when scrolling up, so it is always seen, also on tall
+  phone sections. Lines arriving together cascade. Fail-safes: lines on screen
+  are shown after any re-measure, and an IntersectionObserver (independent of
+  GSAP) fades in any line still invisible on screen after a second.
 - **Next-section links**: the hero and each section end with the next title in
   small caps over a bobbing arrow (Products, Join, Team, Contact) for a quick
   jump down the page.

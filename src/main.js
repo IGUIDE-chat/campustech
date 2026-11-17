@@ -110,54 +110,61 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
     smoothTouch: false,
   })
 
-  // Each section animates every time it comes into view or leaves, in the
-  // direction of the scroll. Scrolling down: lines rise in from below as the
-  // section enters, and drift up and fade as it leaves at the top. Scrolling up:
-  // lines drop in from above, bottom line first (that part shows first), and
-  // sink and fade as it leaves at the bottom.
+  // Every line (heading, paragraph, list item) animates on its own as it enters
+  // or leaves the screen, in the scroll direction, so the motion is always seen
+  // where it happens, also on tall phone sections and when scrolling back up.
+  // Scrolling down: lines rise in from below, top first. Scrolling up: lines drop
+  // in from above, bottom first. A line only fades out once it is nearly off
+  // screen. Lines that arrive together are batched into one staggered cascade.
   // Phones resize the page when the address bar shows or hides; re-measuring on
-  // every one of those could leave a section hidden mid-scroll.
+  // every one of those could leave a line hidden mid-scroll.
   ScrollTrigger.config({ ignoreMobileResize: true })
-  gsap.utils.toArray(".sections section").forEach((section) => {
-    const items = [...section.children].filter((el) => !el.matches(".next"))
-    gsap.set(items, { opacity: 0, y: 40 })
-    const show = (fromY, from) =>
-      gsap.fromTo(
-        items,
-        { opacity: 0, y: fromY },
-        { opacity: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
-      )
-    const hide = (toY, from) =>
-      gsap.to(items, { opacity: 0, y: toY, duration: 0.45, ease: "power2.in", stagger: { each: 0.04, from }, overwrite: true })
-    ScrollTrigger.create({
-      trigger: section,
-      start: "top 75%",
-      end: "bottom 25%",
-      onEnter: () => show(40, "start"),
-      onLeave: () => hide(-40, "start"),
-      onEnterBack: () => show(-40, "end"),
-      onLeaveBack: () => hide(40, "end"),
-      // Fail-safe: after any re-measure, a section that is in view is shown.
-      onRefresh: (self) => {
-        if (self.isActive) gsap.set(items, { opacity: 1, y: 0, overwrite: true })
-      },
-    })
-    // Second safety net, independent of ScrollTrigger: if the section is on
-    // screen and its lines are still invisible a second later (a missed trigger
-    // on some phone browser), fade them in anyway. Text must never stay hidden.
+  const linesOf = (section) =>
+    [...section.children]
+      .filter((el) => !el.matches(".next"))
+      .flatMap((el) => (el.tagName === "UL" ? [...el.children] : [el]))
+  const sections = gsap.utils.toArray(".sections section")
+  const lines = sections.flatMap(linesOf)
+  const onScreen = (el) => {
+    const r = el.getBoundingClientRect()
+    return r.bottom > 0 && r.top < window.innerHeight
+  }
+  const invisible = (el) => Number(getComputedStyle(el).opacity) < 0.5
+  gsap.set(lines, { opacity: 0, y: 40 })
+  const show = (els, fromY, from) =>
+    gsap.fromTo(
+      els,
+      { opacity: 0, y: fromY },
+      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger: { each: 0.08, from }, overwrite: true },
+    )
+  const hide = (els, toY) => gsap.to(els, { opacity: 0, y: toY, duration: 0.4, ease: "power2.in", overwrite: true })
+  ScrollTrigger.batch(lines, {
+    start: "top 92%",
+    end: "bottom 8%",
+    interval: 0.1,
+    onEnter: (els) => show(els, 40, "start"),
+    onLeave: (els) => hide(els, -40),
+    onEnterBack: (els) => show(els, -40, "end"),
+    onLeaveBack: (els) => hide(els, 40),
+  })
+  // Fail-safe: after any re-measure, lines on screen are shown.
+  ScrollTrigger.addEventListener("refresh", () => {
+    const stuck = lines.filter((el) => onScreen(el) && invisible(el))
+    if (stuck.length) gsap.set(stuck, { opacity: 1, y: 0, overwrite: true })
+  })
+  // Second safety net, independent of ScrollTrigger: if a section is on screen
+  // and some of its lines on screen are still invisible a second later (a missed
+  // trigger on some phone browser), fade them in. Text must never stay hidden.
+  sections.forEach((section) => {
+    const own = linesOf(section)
     let check = 0
     new IntersectionObserver(
       ([entry]) => {
         clearTimeout(check)
         if (!entry.isIntersecting) return
         check = setTimeout(() => {
-          // Only lines actually on screen count, so a section that is just
-          // leaving (its lines already scrolled off) is left alone.
-          const hidden = items.some((el) => {
-            const r = el.getBoundingClientRect()
-            return r.bottom > 0 && r.top < window.innerHeight && Number(getComputedStyle(el).opacity) < 0.5
-          })
-          if (hidden) gsap.to(items, { opacity: 1, y: 0, duration: 0.4, overwrite: true })
+          const stuck = own.filter((el) => onScreen(el) && invisible(el))
+          if (stuck.length) gsap.to(stuck, { opacity: 1, y: 0, duration: 0.4, overwrite: true })
         }, 1000)
       },
       { threshold: [0, 0.25, 0.5, 0.75, 1] },
