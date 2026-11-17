@@ -94,6 +94,8 @@ grep -n "TODO(campustech)" index.html
 - **Team** fills rows of fixed-width columns, as many as fit: one column on
   phones, 2 per row from 560px, 3 from 820px, 4 (the cap) from 1080px; the last
   row is centred.
+- **Section reveal** replays every time a section comes into view, scrolling
+  down or back up (it resets once the section is off screen).
 - **Next-section links**: the hero and each section end with the next title in
   small caps over a bobbing arrow (Products, Join, Team, Contact) for a quick
   jump down the page.

@@ -107,7 +107,10 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
   })
   ScrollTrigger.config({ ignoreMobileResize: true }) // no jump when the address bar hides
 
-  // Each section's lines rise in as they come into view.
+  // Each section's lines rise in every time it comes into view, from either
+  // direction: reset once it has scrolled fully out of view above, played again
+  // when it comes back from above, and played in reverse when scrolling back up
+  // past its start.
   gsap.utils.toArray(".sections section").forEach((section) => {
     gsap.from([...section.children].filter((el) => !el.matches(".next")), {
       y: 40,
@@ -115,7 +118,7 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
       duration: 1,
       ease: "power3.out",
       stagger: 0.08,
-      scrollTrigger: { trigger: section, start: "top 75%" },
+      scrollTrigger: { trigger: section, start: "top 75%", end: "bottom top", toggleActions: "play reset play reverse" },
     })
   })
 }
