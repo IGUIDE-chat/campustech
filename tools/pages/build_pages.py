@@ -104,6 +104,7 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <script>
     (function () {{
       var done = function () {{ document.documentElement.classList.add("loaded") }}
+      if (new URLSearchParams(location.search).has("loading")) return // preview: keep the loading screen on
       if (document.readyState === "complete") done()
       else window.addEventListener("load", done)
       setTimeout(done, 8000)
@@ -588,6 +589,9 @@ def main():
     (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8")
     (ROOT / "llms-full.txt").write_text(llms_full(), encoding="utf-8")
     print("wrote sitemap.xml, llms.txt, llms-full.txt")
+    # Version the CSS/JS URLs in every page (see tools/stamp_assets.py).
+    import runpy
+    runpy.run_path(str(ROOT / "tools" / "stamp_assets.py"), run_name="__main__")
 
 
 if __name__ == "__main__":

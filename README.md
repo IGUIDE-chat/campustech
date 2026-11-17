@@ -149,3 +149,9 @@ automatically. No build command; the output directory is the repo root.
 - Pages serves pages without `.html` (`/faq.html` redirects to `/faq`), so
   canonical URLs, the sitemap and llms.txt use the extensionless form.
 - `404.html` is served automatically for unknown paths.
+- CSS and JS are served with a 4-hour browser cache (HTML is always
+  revalidated), so every local CSS/JS URL carries a content hash (`?v=...`).
+  After editing anything in `src/` or `vendor/`, run
+  `python tools/stamp_assets.py` (`build_pages.py` runs it too) before
+  committing, or returning visitors keep the old files for up to 4 hours.
+- Append `?loading` to any page to keep the loading screen on (preview).
