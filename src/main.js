@@ -1,4 +1,4 @@
-import { startDither } from "./dither.js?v=9817db56a8"
+import { startDither } from "./dither.js?v=4727891f24"
 import { startTubes } from "./tubes.js?v=aec2ea1b7f"
 
 // ---- Background (original script.js, with the smoothed cursor from tubes.js) ----
@@ -101,11 +101,11 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
     content: "#smooth-content",
     smooth: 1.2, // seconds for the content to catch up with the native scroll
     effects: true,
-    // Phones get a light touch of smoothing too: it pins the content layer, which
-    // the nav mask needs (otherwise copy slides under the links on a phone).
-    smoothTouch: 0.1,
+    // Phones keep native momentum scrolling: smoothing on touch made scrolling
+    // stutter. Without it nothing masks content under the nav, so a band in the
+    // page colour goes behind the links once the page scrolls (.nav.under).
+    smoothTouch: false,
   })
-  ScrollTrigger.config({ ignoreMobileResize: true }) // no jump when the address bar hides
 
   // Each section's lines rise in every time it comes into view, from either
   // direction: reset once it has scrolled fully out of view above, played again
@@ -214,6 +214,7 @@ layoutNav()
 function updateBackdrop() {
   const scrolled = !hasHero || window.scrollY > window.innerHeight * 0.5
   nav.classList.toggle("scrolled", scrolled)
+  nav.classList.toggle("under", window.scrollY > 4) // content can now sit under the nav
   document.documentElement.classList.toggle("nav-scrolled", scrolled)
   // The mask only lines up with the nav when ScrollSmoother pins the content layer.
   document.documentElement.classList.toggle(

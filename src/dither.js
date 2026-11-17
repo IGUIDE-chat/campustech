@@ -6,6 +6,12 @@
 // a soft trail field behind the cursor, turned into crisp single-colour dots
 // with an 8x8 ordered (Bayer) dither. Dense at the head, breaking into specks
 // at the edges; when the pointer rests the trail freezes and drops out dot by dot.
+//
+// Text the trail passes under flips to a light colour so it stays readable. Two
+// layers draw the same dots: this canvas behind the page, in the complement of
+// the trail colour, and a second one on top of the page in white with
+// mix-blend-mode: difference. On the page background the two cancel out to the
+// trail colour itself; on text the top layer inverts the dark ink to light.
 
 const START_COLOR = "#6958d5" // the purple from the tubes' palette; a click picks a new colour
 const DOT = 3 // CSS px per dot; every dot is a crisp square
@@ -34,16 +40,28 @@ function packColor(hex) {
   return ((255 << 24) | ((n & 255) << 16) | (((n >> 8) & 255) << 8) | (n >> 16)) >>> 0
 }
 
+/** The complement (white minus the colour) of #rrggbb, packed: see the note above. */
+function packComplement(hex) {
+  const n = 0xffffff - parseInt(hex.slice(1), 16)
+  return packColor("#" + n.toString(16).padStart(6, "0"))
+}
+
 /** Start the dither trail on `canvas`. Returns { setActive(bool), setColor(hex) }. */
 export function startDither(canvas) {
   const ctx = canvas.getContext("2d")
+  // The inverting layer sits on top of the page (outside the scroll content).
+  const flip = document.createElement("canvas")
+  flip.className = "trail trail-flip"
+  flip.setAttribute("aria-hidden", "true")
+  document.body.appendChild(flip)
+  const fctx = flip.getContext("2d")
   const grid = document.createElement("canvas") // one pixel per dot, scaled up crisply
   const gctx = grid.getContext("2d")
   let cols = 0
   let rows = 0
   let image = null
   let pixels = null // Uint32 view of `image`
-  let ink = packColor(START_COLOR)
+  let ink = packComplement(START_COLOR)
 
   const chain = Array.from({ length: POINTS }, () => ({ x: 0, y: 0 }))
   let pointerX = 0
@@ -59,10 +77,12 @@ export function startDither(canvas) {
     const w = window.innerWidth
     const h = window.innerHeight
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
-    canvas.width = Math.round(w * dpr)
-    canvas.height = Math.round(h * dpr)
-    canvas.style.width = `${w}px`
-    canvas.style.height = `${h}px`
+    for (const c of [canvas, flip]) {
+      c.width = Math.round(w * dpr)
+      c.height = Math.round(h * dpr)
+      c.style.width = `${w}px`
+      c.style.height = `${h}px`
+    }
     cols = Math.ceil(w / DOT)
     rows = Math.ceil(h / DOT)
     grid.width = cols
@@ -172,7 +192,17 @@ export function startDither(canvas) {
     gctx.putImageData(image, 0, 0)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.imageSmoothingEnabled = false // scale up without smoothing: crisp square dots
-    ctx.drawImage(grid, 0, 0, cols * DOT * (canvas.width / window.innerWidth), rows * DOT * (canvas.height / window.innerHeight))
+    const dw = cols * DOT * (canvas.width / window.innerWidth)
+    const dh = rows * DOT * (canvas.height / window.innerHeight)
+    ctx.drawImage(grid, 0, 0, dw, dh)
+    // Same dots in white on the inverting layer.
+    fctx.globalCompositeOperation = "source-over"
+    fctx.clearRect(0, 0, flip.width, flip.height)
+    fctx.imageSmoothingEnabled = false
+    fctx.drawImage(grid, 0, 0, dw, dh)
+    fctx.globalCompositeOperation = "source-in"
+    fctx.fillStyle = "#fff"
+    fctx.fillRect(0, 0, flip.width, flip.height)
   }
 
   resize()
@@ -194,10 +224,11 @@ export function startDither(canvas) {
         cancelAnimationFrame(raf)
         raf = 0
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        fctx.clearRect(0, 0, flip.width, flip.height)
       }
     },
     setColor(hex) {
-      ink = packColor(hex)
+      ink = packComplement(hex)
     },
   }
 }

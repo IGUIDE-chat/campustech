@@ -330,7 +330,10 @@ html.pinned.nav-shown #smooth-wrapper {
   pointer-events: none;
 }
 
-html:not(.pinned) .nav.scrolled::before {
+/* Without smooth scrolling (phones, reduced motion) nothing masks the content,
+   so as soon as the page has scrolled at all the band sits behind the links;
+   otherwise the title would show through them. */
+html:not(.pinned) .nav.under::before {
   opacity: 1;
 }
 
@@ -583,6 +586,13 @@ html:not(.pinned) .nav.scrolled::before {
 
 :root[data-theme="light"] .trail {
   display: block;
+}
+
+/* The trail's inverting layer (see dither.js): on top of the page so text under
+   the dots flips to a light colour; below the pull cord. */
+.trail-flip {
+  z-index: 35;
+  mix-blend-mode: difference;
 }
 
 :root[data-theme="light"] .bg {
