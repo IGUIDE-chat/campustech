@@ -286,9 +286,14 @@ def smooth_scroll_on_desktop_native_on_phones(site):
     """'GSAP disappeared' / phone jank: smoother pins on desktop, phones scroll natively with a band behind the nav."""
     page = site.open("/")
     assert page.evaluate("document.documentElement.classList.contains('pinned')"), "ScrollSmoother not active on desktop"
+    # Desktop scroll stutter: the moving content needs its own GPU layer.
+    assert "transform" in page.evaluate("getComputedStyle(document.querySelector('#smooth-content')).willChange"), \
+        "#smooth-content lost will-change: transform (desktop scroll stutter)"
     Site.close(page)
     page = site.open("/", PHONE)
     assert not page.evaluate("document.documentElement.classList.contains('pinned')"), "phones must scroll natively"
+    assert page.evaluate("getComputedStyle(document.querySelector('#smooth-content')).willChange") == "auto", \
+        "phones scroll natively; no extra GPU layer for the page"
     page.evaluate("window.scrollTo(0, 120)")
     page.wait_for_timeout(300)
     assert page.evaluate("document.querySelector('.nav').classList.contains('under')"), "no band behind the nav after scrolling on a phone"

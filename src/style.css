@@ -138,6 +138,14 @@ p {
   z-index: 1;
 }
 
+/* ScrollSmoother moves the whole page with a transform every frame. A layer of
+   its own lets the GPU slide it instead of Chrome repainting the page each
+   frame (desktop stutter; known ScrollSmoother fix). Desktop only: phones
+   scroll natively and don't need the extra GPU memory. */
+html.pinned #smooth-content {
+  will-change: transform;
+}
+
 /* Same size and weight as the link under the title on the original page. */
 .tagline {
   font-size: clamp(13px, 3.8vw, 16px);
