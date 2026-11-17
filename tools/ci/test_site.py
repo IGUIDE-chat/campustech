@@ -14,7 +14,13 @@ import threading
 import traceback
 from pathlib import Path
 
+import os
+
 from playwright.sync_api import sync_playwright
+
+# SLOW=4 python tools/ci/test_site.py throttles the CPU 4x, like the GPU-less CI
+# runner (the tubes render in software there), to check the tests are not timing-bound.
+SLOW = float(os.environ.get("SLOW", "0"))
 
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP = {"viewport": {"width": 1280, "height": 800}}
@@ -64,6 +70,8 @@ class Site:
         if init:
             ctx.add_init_script("try { " + "; ".join(init) + " } catch (e) {}")
         page = ctx.new_page()
+        if SLOW > 1:
+            ctx.new_cdp_session(page).send("Emulation.setCPUThrottlingRate", {"rate": SLOW})
         page.errors = []
         page.on("pageerror", lambda e: page.errors.append(str(e)))
         page.on("console", lambda m: page.errors.append(m.text) if m.type == "error" else None)
@@ -97,6 +105,15 @@ def knob_center(page):
 
 def theme(page):
     return page.evaluate("document.documentElement.dataset.theme")
+
+
+def wait_for(page, js, arg=None, timeout=10000):
+    """Wait until js(arg) is truthy (CI machines are slow; never rely on fixed sleeps)."""
+    try:
+        page.wait_for_function(js, arg=arg, timeout=timeout)
+        return True
+    except Exception:  # noqa: BLE001 - the caller asserts with a clear message
+        return False
 
 
 # ---------------------------------------------------------------- page health
@@ -155,8 +172,7 @@ def cord_switches_theme_on_release_not_while_held(site):
     page.wait_for_timeout(400)
     assert theme(page) == "dark", "theme switched while the cord was still held"
     page.mouse.up()
-    page.wait_for_timeout(500)
-    assert theme(page) == "light", "release did not switch the theme"
+    assert wait_for(page, "document.documentElement.dataset.theme === 'light'"), "release did not switch the theme"
     assert page.evaluate("localStorage.getItem('campustech-theme')") == "light", "theme not remembered"
     Site.close(page)
 
@@ -166,8 +182,7 @@ def cord_click_plays_a_pull_and_switches(site):
     """d3d9249: a click animates a real pull (and switches on release)."""
     page = site.open("/", theme="light")
     page.locator(".pullcord-knob").click()
-    page.wait_for_timeout(900)
-    assert theme(page) == "dark", "click did not switch the theme"
+    assert wait_for(page, "document.documentElement.dataset.theme === 'dark'"), "click did not switch the theme"
     Site.close(page)
 
 
@@ -197,8 +212,8 @@ def theme_switching_keeps_both_effects_working(site):
     page = site.open("/", theme="dark")
     for expected in ("light", "dark", "light", "dark"):
         page.locator(".pullcord-knob").click()
-        page.wait_for_timeout(900)
-        assert theme(page) == expected
+        assert wait_for(page, "t => document.documentElement.dataset.theme === t", expected), f"click did not switch to {expected}"
+        page.wait_for_timeout(300)
         bg = page.evaluate("getComputedStyle(document.querySelector('.bg')).display")
         trail = page.evaluate("getComputedStyle(document.getElementById('trail')).display")
         if expected == "light":
@@ -275,8 +290,7 @@ def nav_hides_while_scrolling_and_returns(site):
     page.evaluate("window.scrollTo(0, 400)")
     page.wait_for_timeout(80)
     assert not page.evaluate("document.querySelector('.nav').classList.contains('show')"), "nav still shown while scrolling"
-    page.wait_for_timeout(1200)
-    assert page.evaluate("document.querySelector('.nav').classList.contains('show')"), "nav did not come back when idle"
+    assert wait_for(page, "document.querySelector('.nav').classList.contains('show')", timeout=5000), "nav did not come back when idle"
     Site.close(page)
 
 
@@ -311,7 +325,7 @@ def in_page_links_jump(site):
     """84 / 6b7d68a / next links: nav, tagline 'products' and next-section links jump to their section."""
     page = site.open("/")
     page.locator(".tagline a").click()
-    page.wait_for_timeout(2000)
+    wait_for(page, "Math.abs(document.getElementById('products').getBoundingClientRect().top) < 120")
     top = page.evaluate("document.getElementById('products').getBoundingClientRect().top")
     assert abs(top) < 120, f"tagline link did not reach Products (top {top:.0f})"
     color = page.evaluate("[getComputedStyle(document.querySelector('.tagline a')).color, getComputedStyle(document.querySelector('.tagline')).color]")
@@ -319,7 +333,7 @@ def in_page_links_jump(site):
     Site.close(page)
     page = site.open("/")
     page.locator(".hero .next").click()
-    page.wait_for_timeout(2000)
+    wait_for(page, "Math.abs(document.getElementById('products').getBoundingClientRect().top) < 120")
     top = page.evaluate("document.getElementById('products').getBoundingClientRect().top")
     assert abs(top) < 120, f"next link did not reach Products (top {top:.0f})"
     Site.close(page)
@@ -349,10 +363,13 @@ def step_scroll(page, direction, step=80):
     return page.evaluate("[window.__dropped, window.__seen.size, window.__seenVisible]")
 
 
-def visible_lines_ok(page):
-    return page.evaluate(
-        f"""{LINES_JS}.filter(el => {{ const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight }})
-        .every(el => +getComputedStyle(el).opacity > 0.99)"""
+def visible_lines_ok(page, timeout=10000):
+    """True once every line on screen is fully visible (waits for slow animations)."""
+    return wait_for(
+        page,
+        f"""() => {LINES_JS}.filter(el => {{ const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight }})
+        .every(el => +getComputedStyle(el).opacity > 0.99)""",
+        timeout=timeout,
     )
 
 
@@ -398,10 +415,9 @@ def reading_pages_animate_once(site):
     for y in list(range(0, top + 1, 60)) + list(range(top, -1, -60)) + list(range(0, top + 1, 60)):
         scroll_to(page, y)
         page.wait_for_timeout(50)
-    page.wait_for_timeout(1200)
-    ops = page.evaluate("window.__lines.map(e => +getComputedStyle(e).opacity)")
-    lowest = min(ops)
-    assert lowest > 0.99, f"a reading-page line is not fully visible after scrolling back and forth ({lowest})"
+    ok = wait_for(page, "() => window.__lines.every(e => +getComputedStyle(e).opacity > 0.99)")
+    lowest = min(page.evaluate("window.__lines.map(e => +getComputedStyle(e).opacity)"))
+    assert ok, f"a reading-page line is not fully visible after scrolling back and forth ({lowest})"
     Site.close(page)
 
 
@@ -460,9 +476,10 @@ def link_preview_centres_on_the_link_text(site):
     page = site.open("/")
     page.evaluate("document.getElementById('products').scrollIntoView()")
     page.wait_for_timeout(800)
-    link = page.locator("#products a", has_text="AI Chat").first
-    link.hover()
-    page.wait_for_timeout(600)
+    assert visible_lines_ok(page), "Products lines never became visible"
+    box = page.locator("#products a", has_text="AI Chat").first.bounding_box()
+    page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+    wait_for(page, "+getComputedStyle(document.querySelector('.preview')).opacity > 0.9", timeout=5000)
     r = page.evaluate(
         """(() => { const p = document.querySelector('.preview').getBoundingClientRect();
         const r = document.createRange(); r.selectNodeContents([...document.querySelectorAll('#products a')].find(a => a.textContent.includes('AI Chat')));
