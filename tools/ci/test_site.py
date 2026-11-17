@@ -107,13 +107,18 @@ def theme(page):
     return page.evaluate("document.documentElement.dataset.theme")
 
 
-def wait_for(page, js, arg=None, timeout=10000):
-    """Wait until js(arg) is truthy (CI machines are slow; never rely on fixed sleeps)."""
+def wait_for(page, js, arg=None, timeout=15000):
+    """Wait until js(arg) is truthy (CI machines are slow; never rely on fixed sleeps).
+    Polls on a timer (animation frames starve on a loaded machine) and checks once
+    more directly before giving up."""
     try:
-        page.wait_for_function(js, arg=arg, timeout=timeout)
+        page.wait_for_function(js, arg=arg, timeout=timeout, polling=100)
         return True
     except Exception:  # noqa: BLE001 - the caller asserts with a clear message
-        return False
+        try:
+            return bool(page.evaluate(js, arg))
+        except Exception:  # noqa: BLE001
+            return False
 
 
 # ---------------------------------------------------------------- page health
@@ -382,26 +387,37 @@ def nothing_expensive_runs_while_scrolling(site):
 
 
 def step_scroll(page, direction, step=80):
-    """Scroll the whole page in small steps; return (lines dropped while on screen, lines seen, seen already visible)."""
-    page.evaluate(
-        f"""window.__lines = {LINES_JS}; window.__last = new Map(); window.__dropped = []; window.__seen = new Set(); window.__seenVisible = 0;
-        window.__wasHidden = new Set(window.__lines.filter(el => +getComputedStyle(el).opacity < 0.05))"""
+    """Scroll the whole page in small steps, entirely inside the page so the
+    observation right after each step does not depend on machine speed (round
+    trips on a slow CI runner let animations finish before they were seen).
+    Returns (lines dropped while on screen, lines seen, hidden lines first seen
+    already fully visible); page.early lists the latter."""
+    res = page.evaluate(
+        f"""async ([dir, step]) => {{
+        const lines = {LINES_JS};
+        const wasHidden = new Set(lines.filter(el => +getComputedStyle(el).opacity < 0.05));
+        const sm = window.ScrollSmoother && ScrollSmoother.get(); const pinned = document.documentElement.classList.contains('pinned');
+        const max = Math.max(document.documentElement.scrollHeight - innerHeight, window.ScrollTrigger ? ScrollTrigger.maxScroll(window) : 0);
+        const ys = []; if (dir === 'down') for (let y = 0; y <= max; y += step) ys.push(y); else for (let y = max; y >= 0; y -= step) ys.push(y);
+        const last = new Map(), seen = new Set(), dropped = [], early = [];
+        for (const y of ys) {{
+          if (sm && pinned) sm.scrollTo(y, false); else window.scrollTo(0, y);
+          ScrollTrigger.update();
+          for (const el of lines) {{
+            const r = el.getBoundingClientRect(); const on = r.bottom > 0 && r.top < innerHeight; const o = +getComputedStyle(el).opacity;
+            const prev = last.get(el);
+            if (on && prev && prev.on && o < prev.o - 0.05) dropped.push(el.textContent.trim().slice(0, 20));
+            if (on && !seen.has(el)) {{ seen.add(el); if (o > 0.95 && wasHidden.has(el)) early.push(el.textContent.trim().slice(0, 18) + ' top=' + Math.round(r.top)) }}
+            last.set(el, {{ on, o }});
+          }}
+          await new Promise(r => setTimeout(r, 60));
+        }}
+        return [dropped, seen.size, early];
+      }}""",
+        [direction, step],
     )
-    top = max_scroll(page)
-    ys = range(0, top + 1, step) if direction == "down" else range(top, -1, -step)
-    for y in ys:
-        scroll_to(page, y)
-        page.wait_for_timeout(60)
-        page.evaluate(
-            """dir => { for (const el of window.__lines) { const r = el.getBoundingClientRect();
-            const on = r.bottom > 0 && r.top < innerHeight; const o = +getComputedStyle(el).opacity; const prev = window.__last.get(el);
-            if (on && prev && prev.on && o < prev.o - 0.05) window.__dropped.push(el.textContent.trim().slice(0, 20));
-            if (on && !window.__seen.has(el)) { window.__seen.add(el); if (o > 0.95 && window.__wasHidden.has(el)) { window.__seenVisible++; (window.__early = window.__early || []).push(el.textContent.trim().slice(0, 18) + ' top=' + Math.round(r.top)) } }
-            window.__last.set(el, { on, o }) } }""",
-            direction,
-        )
-    page.early = page.evaluate("window.__early || []")
-    return page.evaluate("[window.__dropped, window.__seen.size, window.__seenVisible]")
+    page.early = res[2]
+    return res[0], res[1], len(res[2])
 
 
 def visible_lines_ok(page, timeout=10000):
