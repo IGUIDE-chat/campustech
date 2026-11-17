@@ -53,8 +53,26 @@ def linkedin_card(url):
     </div></body></html>"""
 
 
+X_LOGO = (
+    '<svg viewBox="0 0 24 24" width="88" height="88"><path fill="#fff" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>'
+)
+
+
+def x_card(url):
+    """x.com refuses headless browsers (HTTP error before the page loads), so render a card."""
+    handle = "@" + url.rstrip("/").rsplit("/", 1)[-1]
+    return f"""<!doctype html><html><head><meta charset="utf-8"><style>
+      html,body{{margin:0;width:1280px;height:800px;background:#0f1419;font-family:system-ui,Segoe UI,sans-serif;color:#fff}}
+      .wrap{{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}}
+      .name{{font-size:56px;font-weight:700}}
+      .btn{{margin-top:12px;padding:16px 36px;border:2px solid #fff;border-radius:999px;font-size:30px;font-weight:600}}
+    </style></head><body><div class="wrap">{X_LOGO}
+      <div class="name">{handle}</div><div class="btn">View profile</div>
+    </div></body></html>"""
+
+
 # URLs rendered from a local card instead of a screenshot of the live page.
-CARDS = {"https://www.linkedin.com/": linkedin_card}
+CARDS = {"https://www.linkedin.com/": linkedin_card, "https://x.com/": x_card}
 
 
 def outbound_links():
