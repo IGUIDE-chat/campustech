@@ -153,6 +153,26 @@ if (gsap && ScrollTrigger && ScrollSmoother && !reduceMotion) {
         if (self.isActive) gsap.set(items, { opacity: 1, y: 0, overwrite: true })
       },
     })
+    // Second safety net, independent of ScrollTrigger: if the section is on
+    // screen and its lines are still invisible a second later (a missed trigger
+    // on some phone browser), fade them in anyway. Text must never stay hidden.
+    let check = 0
+    new IntersectionObserver(
+      ([entry]) => {
+        clearTimeout(check)
+        if (!entry.isIntersecting) return
+        check = setTimeout(() => {
+          // Only lines actually on screen count, so a section that is just
+          // leaving (its lines already scrolled off) is left alone.
+          const hidden = items.some((el) => {
+            const r = el.getBoundingClientRect()
+            return r.bottom > 0 && r.top < window.innerHeight && Number(getComputedStyle(el).opacity) < 0.5
+          })
+          if (hidden) gsap.to(items, { opacity: 1, y: 0, duration: 0.4, overwrite: true })
+        }, 1000)
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] },
+    ).observe(section)
   })
 }
 

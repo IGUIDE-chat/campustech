@@ -99,7 +99,9 @@ grep -n "TODO(campustech)" index.html
   down, lines rise in from below and drift up as the section leaves; scrolling
   up, they drop in from above (bottom line first) and sink as it leaves. Any
   section in view is forced visible after GSAP re-measures (fail-safe for phone
-  address-bar resizes, which are also ignored).
+  address-bar resizes, which are also ignored). A second safety net (an
+  IntersectionObserver, independent of GSAP) fades in any line that is on
+  screen but still invisible a second later, so text never stays hidden.
 - **Next-section links**: the hero and each section end with the next title in
   small caps over a bobbing arrow (Products, Join, Team, Contact) for a quick
   jump down the page.
