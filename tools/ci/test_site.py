@@ -58,7 +58,11 @@ class Site:
         self.browser = browser
         self.base = base
 
-    def open(self, path="/", device=DESKTOP, theme=None, hero=None, width=None, settle=1200):
+    def open(self, path="/", device=DESKTOP, theme=None, hero=None, width=None, settle=1200, tubes=False):
+        """tubes=False blocks the neon tubes (the page falls back to its static
+        background). Without a GPU they render in software and starve everything
+        else, which made timing checks a lottery on CI; only tests about the tubes
+        themselves load them."""
         opts = dict(device)
         if width:
             opts["viewport"] = {"width": width, "height": opts["viewport"]["height"]}
@@ -70,6 +74,8 @@ class Site:
             init.append(f"localStorage.setItem('campustech-hero', '{hero}')")
         if init:
             ctx.add_init_script("try { " + "; ".join(init) + " } catch (e) {}")
+        if not tubes:
+            ctx.route("**/vendor/tubes1.min.js*", lambda route: route.abort())
         page = ctx.new_page()
         if SLOW > 1:
             ctx.new_cdp_session(page).send("Emulation.setCPUThrottlingRate", {"rate": SLOW})
@@ -131,7 +137,7 @@ def no_console_errors_on_any_page(site):
     for device_name, device in (("desktop", DESKTOP), ("phone", PHONE)):
         for t in ("dark", "light"):
             for path in PAGES:
-                page = site.open(path, device, theme=t, settle=900)
+                page = site.open(path, device, theme=t, settle=900, tubes=True)
                 assert not page.errors, f"{path} ({device_name}, {t}): {page.errors[:3]}"
                 Site.close(page)
 
@@ -144,7 +150,7 @@ def loading_screen_hidden_after_load_and_previewable(site):
     assert page.evaluate("getComputedStyle(document.getElementById('loader')).display") == "none"
     Site.close(page)
     page = site.open("/?loading", settle=1000)
-    assert page.evaluate("getComputedStyle(document.getElementById('loader')).visibility") == "visible", "?loading did not keep the loader"
+    assert wait_for(page, "getComputedStyle(document.getElementById('loader')).visibility === 'visible'"), "?loading did not keep the loader"
     assert page.locator("#loader .sk-hero").count() == 1, "home skeleton missing"
     Site.close(page)
     page = site.open("/faq.html?loading", settle=1000)
@@ -215,7 +221,7 @@ def cord_is_on_top_and_grabbable_everywhere(site):
 @test
 def theme_switching_keeps_both_effects_working(site):
     """d3d9249 / NaN bug / 'light to dark no more cursor focus': effects survive switching."""
-    page = site.open("/", theme="dark")
+    page = site.open("/", theme="dark", tubes=True)
     for expected in ("light", "dark", "light", "dark"):
         page.locator(".pullcord-knob").click()
         assert wait_for(page, "t => document.documentElement.dataset.theme === t", expected), f"click did not switch to {expected}"
