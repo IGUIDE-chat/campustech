@@ -165,9 +165,9 @@ function highlight() {
 // have no hero, so they always get it).
 const hasHero = !!document.querySelector(".hero")
 const wrapper = document.getElementById("smooth-wrapper")
-// Nav position, measured rather than set per breakpoint: centred on the page
-// when the links fit there, otherwise shifted left just enough to clear the pull
-// cord, and wrapped onto two rows only when they can't fit on one line at all.
+// Nav position, measured rather than set per breakpoint: on one line it is
+// centred in the free space left of the pull cord; when it can't fit on one line
+// it wraps, with both rows starting at the left edge.
 const navLinks = nav.querySelector(".nav-links")
 const EDGE = 16 // min gap to the left edge of the screen
 const CORD_GAP = 24 // min gap between the last link and the cord
@@ -183,10 +183,10 @@ function layoutNav() {
   navLinks.style.flexWrap = ""
   navLinks.style.width = ""
   const maxRight = cordX - CORD_GAP // the links must end before this
-  let left = (vw - w) / 2 // centred on the page
-  if (left + w > maxRight) left = maxRight - w // shift clear of the cord
-  left = Math.max(EDGE, left) // and never off the left edge (then it wraps)
-  // When it has to wrap, rows start at the left edge (second row under the first).
+  // One row: centred in the free space between the left edge and the cord.
+  // Two rows (doesn't fit): start at the left edge, second row under the first.
+  const free = maxRight - EDGE
+  const left = w <= free ? EDGE + (free - w) / 2 : EDGE
   root.style.setProperty("--nav-left", `${Math.round(left)}px`)
   root.style.setProperty("--nav-right", `${Math.max(EDGE, Math.round(vw - maxRight))}px`)
   // Keep the content fade under the nav as tall as the nav.

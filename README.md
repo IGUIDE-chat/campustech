@@ -131,8 +131,13 @@ npm run build
 
 ## Deploy
 
-- **GitHub Pages:** push to `main`, enable Pages from the repo root. `CNAME`
-  already holds `campustech.iguide.chat`; add a `CNAME` DNS record pointing
-  `campustech` to `<user>.github.io`.
-- **Cloudflare Pages:** connect the repo, no build command, output directory
-  `/`, then add `campustech.iguide.chat` as a custom domain.
+Hosted on **Cloudflare Pages** (account techadmin@iguide.chat, project
+`campustech`), connected to this repo: every push to `main` deploys
+automatically. No build command; the output directory is the repo root.
+
+- Production: https://campustech.iguide.chat (a proxied `CNAME campustech ->
+  campustech.pages.dev` record in the iguide.chat zone, created by Pages).
+- Fallback: https://campustech.pages.dev
+- Pages serves pages without `.html` (`/faq.html` redirects to `/faq`), so
+  canonical URLs, the sitemap and llms.txt use the extensionless form.
+- `404.html` is served automatically for unknown paths.
