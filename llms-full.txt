@@ -13,9 +13,9 @@ Key facts:
 - [Home](https://campustech.iguide.chat/): products, recruiting, team and contact
 - [Past](https://campustech.iguide.chat/past): past products and presidents
 - [Articles](https://campustech.iguide.chat/articles/): news and guides
-- [Introducing Campus Tech @ UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
-- [Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply](https://campustech.iguide.chat/articles/fall-2026-recruiting): Campus Tech @ UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
-- [Have an Idea for a Campus Product? Pitch It to Campus Tech](https://campustech.iguide.chat/articles/pitch-your-idea): Campus Tech @ UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
+- [Introducing Campus Tech at UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
+- [Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply](https://campustech.iguide.chat/articles/fall-2026-recruiting): Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+- [Have an Idea for a Campus Product? Pitch It to Campus Tech](https://campustech.iguide.chat/articles/pitch-your-idea): Campus Tech at UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
 - [FAQ](https://campustech.iguide.chat/faq): short answers about the organization
 - [Privacy Policy](https://campustech.iguide.chat/privacy)
 - [Terms of Use](https://campustech.iguide.chat/terms)
@@ -174,19 +174,19 @@ Questions: techadmin.campustech@gmail.com.
 
 ## Articles
 
-News and guides from Campus Tech @ UIUC.
+News and guides from Campus Tech at UIUC.
 
-## Introducing Campus Tech @ UIUC
+## Introducing Campus Tech at UIUC
 
 Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
 
 ## Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply
 
-Campus Tech @ UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
 
 ## Have an Idea for a Campus Product? Pitch It to Campus Tech
 
-Campus Tech @ UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
+Campus Tech at UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
 
 ---
 
@@ -194,9 +194,9 @@ Campus Tech @ UIUC takes product ideas from any student. Tell us who would use i
 
 Articles
 
-## Introducing Campus Tech @ UIUC
+## Introducing Campus Tech at UIUC
 
-Published November 17, 2026 · Campus Tech @ UIUC
+Published November 17, 2026 · Campus Tech at UIUC
 
 Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.
 
@@ -232,9 +232,9 @@ Articles
 
 ## Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply
 
-Published November 17, 2026 · Campus Tech @ UIUC
+Published November 17, 2026 · Campus Tech at UIUC
 
-Campus Tech @ UIUC is recruiting new members for Fall 2026 Round 1. Students of any major and year can apply, and both domestic and international students are welcome.
+Campus Tech at UIUC is recruiting new members for Fall 2026 Round 1. Students of any major and year can apply, and both domestic and international students are welcome.
 
 ## Open roles
 
@@ -288,9 +288,9 @@ Articles
 
 ## Have an Idea for a Campus Product? Pitch It to Campus Tech
 
-Published November 17, 2026 · Campus Tech @ UIUC
+Published November 17, 2026 · Campus Tech at UIUC
 
-Have an idea for a product that would make campus life better? You can pitch it to Campus Tech @ UIUC, even if you are not a member.
+Have an idea for a product that would make campus life better? You can pitch it to Campus Tech at UIUC, even if you are not a member.
 
 ## What to tell us
 
@@ -318,9 +318,9 @@ Promising ideas can become Campus Tech projects, built by members across program
 
 Last updated: November 17, 2026
 
-Q: What is Campus Tech?
+Q: What is Campus Tech at UIUC?
 
-A: Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.
+A: Campus Tech at UIUC (Campus Tech @ University of Illinois Urbana-Champaign) is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.
 
 Q: What does Campus Tech build?
 

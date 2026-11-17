@@ -139,7 +139,7 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
 {body}
   </main>
   <footer class="site-footer">
-    <p>© 2026 Campus Tech @ UIUC · <a href="{up}articles/">Articles</a> · <a href="{up}faq.html">FAQ</a> · <a href="{up}privacy.html">Privacy</a> · <a href="{up}terms.html">Terms</a></p>
+    <p>© 2026 Campus Tech at UIUC · <a href="{up}articles/">Articles</a> · <a href="{up}faq.html">FAQ</a> · <a href="{up}privacy.html">Privacy</a> · <a href="{up}terms.html">Terms</a></p>
     <p>A registered student organization at the University of Illinois Urbana-Champaign; not an official University website. Background by <a href="https://codepen.io/soju22/pen/qEbdVjK" target="_blank" rel="noopener">Kevin Levron</a>, CC BY-NC-SA 4.0.</p>
   </footer>
   </div>
@@ -189,8 +189,8 @@ PAGES = {}
 
 PAGES["past.html"] = page(
     "past.html",
-    "Past · Campus Tech",
-    "Past products and presidents of Campus Tech @ UIUC.",
+    "Past · Campus Tech at UIUC",
+    "Past products and presidents of Campus Tech at UIUC.",
     """    <section id="past">
       <h2>Past</h2>
       <!-- TODO(campustech): retired or earlier products; add each president as terms end -->
@@ -210,8 +210,8 @@ PAGES["past.html"] = page(
 
 PAGES["privacy.html"] = page(
     "privacy.html",
-    "Privacy Policy · Campus Tech",
-    "How the Campus Tech @ UIUC website handles information: no accounts, no cookies, no analytics.",
+    "Privacy Policy · Campus Tech at UIUC",
+    "How the Campus Tech at UIUC website handles information: no accounts, no cookies, no analytics.",
     f"""    <section class="prose">
       <h1>Privacy Policy</h1>
       <p class="meta">Last updated: November 17, 2026</p>
@@ -248,8 +248,8 @@ PAGES["privacy.html"] = page(
 
 PAGES["terms.html"] = page(
     "terms.html",
-    "Terms of Use · Campus Tech",
-    "Terms of use for the Campus Tech @ UIUC website, including the university disclaimer and third-party credits.",
+    "Terms of Use · Campus Tech at UIUC",
+    "Terms of use for the Campus Tech at UIUC website, including the university disclaimer and third-party credits.",
     f"""    <section class="prose">
       <h1>Terms of Use</h1>
       <p class="meta">Last updated: November 17, 2026</p>
@@ -290,7 +290,7 @@ PAGES["terms.html"] = page(
 ARTICLES = [
     {
         "slug": "introducing-campus-tech",
-        "title": "Introducing Campus Tech @ UIUC",
+        "title": "Introducing Campus Tech at UIUC",
         "desc": "Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.",
         "body": f"""      <p>Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.</p>
 
@@ -314,8 +314,8 @@ ARTICLES = [
     {
         "slug": "fall-2026-recruiting",
         "title": "Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply",
-        "desc": "Campus Tech @ UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.",
-        "body": f"""      <p>Campus Tech @ UIUC is recruiting new members for Fall 2026 Round 1. Students of any major and year can apply, and both domestic and international students are welcome.</p>
+        "desc": "Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.",
+        "body": f"""      <p>Campus Tech at UIUC is recruiting new members for Fall 2026 Round 1. Students of any major and year can apply, and both domestic and international students are welcome.</p>
 
       <h2>Open roles</h2>
       <ul>
@@ -359,8 +359,8 @@ ARTICLES = [
     {
         "slug": "pitch-your-idea",
         "title": "Have an Idea for a Campus Product? Pitch It to Campus Tech",
-        "desc": "Campus Tech @ UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.",
-        "body": f"""      <p>Have an idea for a product that would make campus life better? You can pitch it to Campus Tech @ UIUC, even if you are not a member.</p>
+        "desc": "Campus Tech at UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.",
+        "body": f"""      <p>Have an idea for a product that would make campus life better? You can pitch it to Campus Tech at UIUC, even if you are not a member.</p>
 
       <h2>What to tell us</h2>
       <ul>
@@ -387,11 +387,11 @@ for a in ARTICLES:
 """
 PAGES["articles/index.html"] = page(
     "articles/index.html",
-    "Articles · Campus Tech",
-    "News and guides from Campus Tech @ UIUC: who we are, how to join, and how to pitch a campus product idea.",
+    "Articles · Campus Tech at UIUC",
+    "News and guides from Campus Tech at UIUC: who we are, how to join, and how to pitch a campus product idea.",
     f"""    <section class="prose">
       <h1>Articles</h1>
-      <p>News and guides from Campus Tech @ UIUC.</p>
+      <p>News and guides from Campus Tech at UIUC.</p>
       <div class="cards">
 {cards}      </div>
     </section>""",
@@ -427,12 +427,12 @@ for a in ARTICLES:
         )
     PAGES[path] = page(
         path,
-        f"{a['title']} · Campus Tech",
+        a["title"] if "Campus Tech at UIUC" in a["title"] else f"{a['title']} · Campus Tech at UIUC",
         a["desc"],
         f"""    <section class="prose">
       <p class="crumbs"><a href="./">Articles</a></p>
       <h1>{a['title']}</h1>
-      <p class="meta">Published November 17, 2026 · Campus Tech @ UIUC</p>
+      <p class="meta">Published November 17, 2026 · Campus Tech at UIUC</p>
 {a['body']}
     </section>""",
         active="articles",
@@ -444,7 +444,7 @@ for a in ARTICLES:
 # ---- FAQ (also the main GEO page: short, factual answers) ------------------- #
 
 FAQ = [
-    ("What is Campus Tech?", "Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026."),
+    ("What is Campus Tech at UIUC?", "Campus Tech at UIUC (Campus Tech @ University of Illinois Urbana-Champaign) is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026."),
     ("What does Campus Tech build?", "AI Chat (iguide.chat/chat) for questions about UIUC, Dorms (iguide.chat/dorms) for comparing UIUC residence halls, a 3D room scan, apartment comparison, websites for registered student organizations, and tools for local businesses."),
     ("Who leads Campus Tech?", "Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director) and Chris Lopez (Treasurer), with Skylar Chu as advisor."),
     ("How do I join Campus Tech?", "Submit the membership application and complete a short interview. Fall 2026 Round 1 applications close at 11:59 PM Central Time on Sunday, November 29, 2026."),
@@ -459,8 +459,8 @@ FAQ = [
 faq_html = "".join(f"        <dt>{q}</dt>\n        <dd>{a}</dd>\n" for q, a in FAQ)
 PAGES["faq.html"] = page(
     "faq.html",
-    "FAQ · Campus Tech @ UIUC",
-    "Answers about Campus Tech @ UIUC: what it is, what it builds, who leads it, and how to join or pitch an idea.",
+    "FAQ · Campus Tech at UIUC",
+    "Answers about Campus Tech at UIUC: what it is, what it builds, who leads it, and how to join or pitch an idea.",
     f"""    <section class="prose">
       <h1>Frequently asked questions</h1>
       <p class="meta">Last updated: November 17, 2026</p>
@@ -484,7 +484,7 @@ PAGES["faq.html"] = page(
 
 PAGES["404.html"] = page(
     "404.html",
-    "Page not found · Campus Tech",
+    "Page not found · Campus Tech at UIUC",
     "This page does not exist.",
     """    <section>
       <h2>404</h2>
@@ -497,7 +497,7 @@ PAGES["404.html"] = page(
 
 PAGES["coming-soon.html"] = page(
     "coming-soon.html",
-    "Coming soon · Campus Tech",
+    "Coming soon · Campus Tech at UIUC",
     "This part of Campus Tech is coming soon.",
     f"""    <section>
       <h2>Coming soon</h2>
