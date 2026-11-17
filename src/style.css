@@ -238,7 +238,9 @@ p {
    headings vanish under the links while the tubes (a separate layer) stay
    visible. Without it (reduced motion, some touch setups) a band in the page
    colour is painted behind the nav instead. On the hero neither applies. */
-html.pinned.nav-scrolled #smooth-wrapper {
+/* Always on: at the top nothing sits in this strip (the tubes are a separate
+   layer), and once scrolling starts the hero title must already slide under it. */
+html.pinned #smooth-wrapper {
   /* --nav-h is the nav's real height (set by main.js), so a wrapped two-row nav
      is covered too. */
   -webkit-mask-image: linear-gradient(to bottom, transparent var(--nav-h, 60px), #000 calc(var(--nav-h, 60px) + 32px));
