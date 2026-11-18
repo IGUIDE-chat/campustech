@@ -18,7 +18,9 @@ EMAIL = "techadmin.campustech@gmail.com"
 APPLY = "https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform"
 PITCH = "https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform"
 UPDATED = "2026-11-17"  # articles' publish date
-SITE_UPDATED = "2026-11-18"  # sitemap lastmod, FAQ "last updated"
+SITE_UPDATED = "2026-11-18"  # FAQ "last updated"
+# Sitemap lastmod per page (clean URL path); bump a page's date when its content changes.
+PAGE_UPDATED = {"": SITE_UPDATED, "cases": SITE_UPDATED, "faq": SITE_UPDATED}
 
 
 def pretty(path):
@@ -30,7 +32,7 @@ def pretty(path):
 PUBLISHER = {"@type": "Organization", "@id": SITE + "#org", "name": ORG_NAME, "url": SITE}
 
 
-def page(path, title, description, body, active="", schema=None, og_type="website", noindex=False, absolute=False):
+def page(path, title, description, body, active="", schema=None, og_type="website", noindex=False, absolute=False, og_image=None, og_alt=None):
     depth = path.count("/")
     up = "/" if absolute else "../" * depth
     url = SITE + pretty(path)
@@ -69,13 +71,14 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <meta property="og:title" content="{title}">
   <meta property="og:description" content="{description}">
   <meta property="og:url" content="{url}">
-  <meta property="og:image" content="{SITE}assets/og.png">
+  <meta property="og:image" content="{og_image or SITE + 'assets/og.jpg'}">
+  <meta property="og:image:alt" content="{og_alt or 'Campus Tech at UIUC: the neon tubes beside the CAMPUS TECH lockup'}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:description" content="{description}">
-  <meta name="twitter:image" content="{SITE}assets/og.png">
+  <meta name="twitter:image" content="{og_image or SITE + 'assets/og.jpg'}">
   <meta name="theme-color" content="#0d0d12">
   <link rel="icon" href="{up}assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="{up}assets/favicon-192.png" sizes="192x192" type="image/png">
@@ -180,7 +183,7 @@ def article_schema(path, headline, description):
         "datePublished": UPDATED,
         "dateModified": UPDATED,
         "mainEntityOfPage": SITE + pretty(path),
-        "image": SITE + "assets/og.png",
+        "image": SITE + "assets/og.jpg",
         "author": PUBLISHER,
         "publisher": {**PUBLISHER, "logo": {"@type": "ImageObject", "url": SITE + "assets/logo.png"}},
     }
@@ -214,14 +217,16 @@ PAGES["past.html"] = page(
 )
 
 # Sites we built, shown on the Cases page as a gallery in the style of the
-# Awwwards collections. Screenshots: `python tools/previews/capture.py --cases`
-# (full page, 960 wide, up to three 4:3 screens; the card scrolls through it on hover).
+# Awwwards collections. Each card plays a short muted 16:9 demo film of the site
+# (assets/cases/<id>.mp4 + .webm, 1280x720 at 60 fps, poster <id>-poster.webp),
+# cut from the showcase films (campustech-showcase: record_raw.py + Remotion), and
+# opens the live site.
 CASES = [
     {
         "name": "CAACI",
         "url": "https://caaciorg.com",
-        "img": "assets/cases/caaci.webp",
-        "h": 2160,
+        "id": "caaci",
+        "img": "assets/cases/caaci-poster.webp",
         "tag": "website",
         "type": "Nonprofit",
         "cats": "Bilingual site · Memberships · Events",
@@ -231,8 +236,8 @@ CASES = [
     {
         "name": "iGuide",
         "url": "https://iguide.chat",
-        "img": "assets/cases/iguide.webp",
-        "h": 720,
+        "id": "iguide",
+        "img": "assets/cases/iguide-poster.webp",
         "tag": "web app",
         "type": "Campus",
         "cats": "AI chat · Dorm guide · English and 中文",
@@ -242,8 +247,8 @@ CASES = [
     {
         "name": "Campus Tech",
         "url": "https://campustech.iguide.chat",
-        "img": "assets/cases/campustech.webp",
-        "h": 2160,
+        "id": "campustech",
+        "img": "assets/cases/campustech-poster.webp",
         "tag": "website",
         "type": "Student org",
         "cats": "WebGL · Smooth scroll · Light switch",
@@ -259,11 +264,14 @@ def case_card(c):
     link = f'href="{c["url"]}" target="_blank" rel="noopener" data-no-preview'
     return f"""        <article class="case">
           <a class="case-shot" {link}>
-            <img src="{c["img"]}" width="960" height="{c["h"]}" alt="{c["alt"]}" loading="lazy" decoding="async">
+            <video class="case-video" muted loop playsinline preload="none" poster="{c["img"]}" width="1280" height="720" aria-label="{c["alt"]}">
+              <source src="assets/cases/{c["id"]}.mp4" type="video/mp4">
+              <source src="assets/cases/{c["id"]}.webm" type="video/webm">
+            </video>
             <span class="case-tag">{c["tag"]}</span>
             <span class="case-hover"><span class="case-type">{c["type"]}</span><span class="case-cat">{c["cats"]}</span>{ARROW}</span>
           </a>
-          <p class="case-name"><a {link}>{c["name"]}</a> <span>by</span> <img src="assets/favicon-32.png" width="16" height="16" alt=""> <span class="case-by">Campus Tech</span></p>
+          <h2 class="case-name"><a {link}>{c["name"]}</a> <span>by</span> <img src="assets/favicon-32.png" width="16" height="16" alt=""> <span class="case-by">Campus Tech</span></h2>
           <p class="case-line">{c["line"]}</p>
         </article>
 """
@@ -271,8 +279,8 @@ def case_card(c):
 
 PAGES["cases.html"] = page(
     "cases.html",
-    "Cases · Campus Tech at UIUC",
-    "Websites Campus Tech at UIUC has built: CAACI, the Chinese American Association of Central Illinois; iGuide, a bilingual campus assistant; and this site.",
+    "RSO Websites and Cases · Campus Tech at UIUC",
+    "Websites Campus Tech at UIUC builds for RSOs and other groups: CAACI (Chinese American Association of Central Illinois), iGuide and this site.",
     f"""    <section id="cases" class="collection">
       <p class="curated">Built by <img src="assets/favicon-32.png" width="20" height="20" alt=""> <b>Campus Tech</b></p>
       <h1 class="page-title collection-title">Cases</h1>
@@ -282,6 +290,7 @@ PAGES["cases.html"] = page(
 {"".join(case_card(c) for c in CASES)}      </div>
       <ul>
         <li><a href="mailto:{EMAIL}?subject=A%20website%20for%20our%20RSO">Your RSO</a><span>Get a site like these</span></li>
+        <li><a href="faq.html">FAQ</a><span>How RSO websites and joining work</span></li>
       </ul>
     </section>""",
     active="cases",
@@ -400,7 +409,7 @@ ARTICLES = [
     {
         "slug": "introducing-campus-tech",
         "title": "Introducing Campus Tech at UIUC",
-        "desc": "Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.",
+        "desc": "Campus Tech at UIUC is a student organization building products for campus life, starting with an AI campus assistant and a dorm guide.",
         "body": f"""      <p>Campus Tech @ University of Illinois Urbana-Champaign is a student organization that builds products for campus life. It was registered as a Registered Student Organization (RSO) at UIUC in November 2026.</p>
 
       <h2>What we build</h2>
@@ -423,7 +432,8 @@ ARTICLES = [
     {
         "slug": "fall-2026-recruiting",
         "title": "Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply",
-        "desc": "Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.",
+        "seo": "Fall 2026 Recruiting: Roles and How to Apply",
+        "desc": "Campus Tech at UIUC Fall 2026 Round 1 recruiting: programming, design, marketing, business and admin roles. Apply by 11:59 PM CT, November 29, 2026.",
         "body": f"""      <p>Campus Tech at UIUC is recruiting new members for Fall 2026 Round 1. Students of any major and year can apply, and both domestic and international students are welcome.</p>
 
       <h2>Open roles</h2>
@@ -468,6 +478,7 @@ ARTICLES = [
     {
         "slug": "pitch-your-idea",
         "title": "Have an Idea for a Campus Product? Pitch It to Campus Tech",
+        "seo": "Pitch a Campus Product Idea",
         "desc": "Campus Tech at UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.",
         "body": f"""      <p>Have an idea for a product that would make campus life better? You can pitch it to Campus Tech at UIUC, even if you are not a member.</p>
 
@@ -517,6 +528,12 @@ PAGES["articles/index.html"] = page(
     ],
 )
 
+def related(a):
+    """Links under each article: the other articles, the FAQ and Cases (internal linking)."""
+    others = " · ".join(f'<a href="{o["slug"]}.html">{o["title"]}</a>' for o in ARTICLES if o is not a)
+    return f'      <p class="related">More: {others} · <a href="../faq.html">FAQ</a> · <a href="../cases.html">Websites we have built</a></p>'
+
+
 for a in ARTICLES:
     path = f"articles/{a['slug']}.html"
     schema = [
@@ -536,13 +553,15 @@ for a in ARTICLES:
         )
     PAGES[path] = page(
         path,
-        a["title"] if "Campus Tech at UIUC" in a["title"] else f"{a['title']} · Campus Tech at UIUC",
+        # <title> stays under ~70 characters: a shorter "seo" title where the h1 is long.
+        a["title"] if "Campus Tech at UIUC" in a["title"] else f"{a.get('seo', a['title'])} · Campus Tech at UIUC",
         a["desc"],
         f"""    <section class="prose">
       <p class="crumbs"><a href="./">Articles</a></p>
       <h1>{a['title']}</h1>
       <p class="meta">Published November 17, 2026 · Campus Tech at UIUC</p>
 {a['body']}
+{related(a)}
     </section>""",
         active="articles",
         schema=schema,
@@ -581,6 +600,7 @@ PAGES["faq.html"] = page(
       <dl>
 {faq_html}      </dl>
       <p>Ready to apply? Read <a href="articles/fall-2026-recruiting.html">how to join</a>, or <a href="{PITCH}" target="_blank" rel="noopener">pitch an idea</a>.</p>
+      <p>See the websites we have built on the <a href="cases.html">Cases</a> page, or read <a href="articles/introducing-campus-tech.html">Introducing Campus Tech at UIUC</a>.</p>
     </section>""",
     schema=[
         breadcrumbs(("Home", ""), ("FAQ", "faq.html")),
@@ -628,11 +648,11 @@ NOT_INDEXED = {"404.html", "coming-soon.html"}
 def sitemap():
     urls = [""] + [pretty(p) for p in PAGES if p not in NOT_INDEXED]
     # Image sitemap entries, so the screenshots and the social card can appear in image search.
-    images = {"": ["assets/og.png", "assets/logo.png"], "cases": [c["img"] for c in CASES]}
+    images = {"": ["assets/og.jpg", "assets/logo.png"], "cases": [c["img"] for c in CASES]}
     rows = ""
     for u in urls:
         imgs = "".join(f"<image:image><image:loc>{SITE}{i}</image:loc></image:image>" for i in images.get(u, []))
-        rows += f"  <url><loc>{SITE}{u}</loc><lastmod>{SITE_UPDATED}</lastmod>{imgs}</url>\n"
+        rows += f"  <url><loc>{SITE}{u}</loc><lastmod>{PAGE_UPDATED.get(u, UPDATED)}</lastmod>{imgs}</url>\n"
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'

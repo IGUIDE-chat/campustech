@@ -391,6 +391,26 @@ highlight()
 updateBackdrop()
 setNavShown(true)
 
+// ---- Cases: demo clips play while their card is on screen ----
+// Muted, looping, inline (so phones play them in place). Nothing loads until a
+// card comes near the screen; clips pause off screen. People who prefer
+// reduced motion keep the poster (the clip's first frame).
+const caseVideos = document.querySelectorAll(".case-video")
+if (caseVideos.length && !reduceMotion && "IntersectionObserver" in window) {
+  const watch = new IntersectionObserver(
+    (entries) => {
+      for (const { target: video, isIntersecting } of entries) {
+        if (isIntersecting) {
+          video.preload = "auto"
+          video.play().catch(() => {}) // autoplay refused (e.g. data saver): the poster stays
+        } else video.pause()
+      }
+    },
+    { threshold: 0.35 },
+  )
+  caseVideos.forEach((video) => watch.observe(video))
+}
+
 // ---- Link previews: hovering an outbound link shows a screenshot of the site ----
 // Screenshots come from tools/previews/capture.py (most sites refuse iframes).
 

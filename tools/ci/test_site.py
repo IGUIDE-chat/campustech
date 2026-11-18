@@ -58,7 +58,7 @@ class Site:
         self.browser = browser
         self.base = base
 
-    def open(self, path="/", device=DESKTOP, theme=None, hero=None, width=None, settle=1200, tubes=False):
+    def open(self, path="/", device=DESKTOP, theme=None, hero=None, width=None, settle=1200, tubes=False, reduced_motion=False):
         """tubes=False blocks the neon tubes (the page falls back to its static
         background). Without a GPU they render in software and starve everything
         else, which made timing checks a lottery on CI; only tests about the tubes
@@ -66,6 +66,8 @@ class Site:
         opts = dict(device)
         if width:
             opts["viewport"] = {"width": width, "height": opts["viewport"]["height"]}
+        if reduced_motion:
+            opts["reduced_motion"] = "reduce"
         ctx = self.browser.new_context(**opts)
         init = []
         if theme:
@@ -697,8 +699,9 @@ def link_preview_centres_on_the_link_text(site):
 @test
 def rso_websites_previews_cases_and_cases_show_the_sites(site):
     """'rso website加悬浮预览' / 'should preview cases': hovering 'RSO websites' previews the Cases
-    page it links to. 'cases should show the cases, not just text': each card shows a loaded
-    screenshot of the site, and hovering it pops up no second preview."""
+    page it links to. 'cases should show the cases' / 'recording?': each card plays a demo clip
+    while on screen (poster first), hovering it pops up no second preview, and with reduced
+    motion the clips stay on their posters."""
     page = site.open("/")
     link = page.locator("#products a", has_text="RSO websites").first
     link.scroll_into_view_if_needed()
@@ -714,18 +717,30 @@ def rso_websites_previews_cases_and_cases_show_the_sites(site):
     Site.close(page)
 
     page = site.open("/cases.html")
-    shot = page.locator(".case-shot img").first
-    shot.scroll_into_view_if_needed()
-    assert wait_for(page, "(() => { const i = document.querySelector('.case-shot img'); return i.complete && i.naturalWidth > 0 })()", timeout=8000), "the case screenshot did not load"
+    clip = page.locator(".case-video").first
+    clip.scroll_into_view_if_needed()
     assert wait_for(page, "+getComputedStyle(document.querySelector('.cases')).opacity > 0.95"), "the cases gallery never became visible"
-    w = page.evaluate("document.querySelector('.case-shot img').getBoundingClientRect().width")
-    assert w >= 300, f"the case screenshot is only {w:.0f}px wide"
-    assert "caaciorg.com" in page.evaluate("document.querySelector('.case-shot').href"), "the CAACI card does not link to caaciorg.com"
-    box = shot.bounding_box()
+    w = page.evaluate("document.querySelector('.case-video').getBoundingClientRect().width")
+    assert w >= 300, f"the case clip is only {w:.0f}px wide"
+    assert "caaciorg.com" in page.evaluate("document.querySelector('.case-shot').href"), "the CAACI card does not open caaciorg.com"
+    playing = "(() => { const v = document.querySelector('.case-video'); return !v.paused && v.readyState >= 2 && v.currentTime > 0.3 })()"
+    state = "(() => { const v = document.querySelector('.case-video'); return {paused: v.paused, ready: v.readyState, t: v.currentTime, src: v.currentSrc, err: v.error && v.error.code} })()"
+    assert wait_for(page, playing, timeout=10000), f"the CAACI clip does not play on screen: {page.evaluate(state)}"
+    box = clip.bounding_box()
     page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
     page.wait_for_timeout(600)
     op = page.evaluate("(() => { const p = document.querySelector('.preview'); return p ? +getComputedStyle(p).opacity : 0 })()")
-    assert op < 0.1, "hovering a case screenshot popped up a second preview"
+    assert op < 0.1, "hovering a case clip popped up a second preview"
+    page.set_viewport_size({"width": 1280, "height": 360})  # short window: at the top, the gallery is off screen
+    page.evaluate("scrollTo(0, 0)")
+    assert wait_for(page, "document.querySelector('.case-video').getBoundingClientRect().top > innerHeight", timeout=5000), "could not move the clip off screen"
+    assert wait_for(page, "document.querySelector('.case-video').paused", timeout=5000), "the clip keeps playing off screen"
+    Site.close(page)
+
+    page = site.open("/cases.html", reduced_motion=True)
+    page.locator(".case-video").first.scroll_into_view_if_needed()
+    page.wait_for_timeout(1500)
+    assert page.evaluate("[...document.querySelectorAll('.case-video')].every(v => v.paused)"), "with reduced motion the clips must not autoplay"
     Site.close(page)
 
 

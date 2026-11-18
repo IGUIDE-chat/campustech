@@ -134,15 +134,11 @@ def main():
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
-# --cases: the full-size screenshots on the Cases page, and a preview of our own
-# Cases page (shown when hovering "RSO websites" on the home page).
-# Full-page screenshots, 960 wide and up to three 4:3 screens tall: the card
-# shows the top and scrolls through the rest on hover.
-CASE_SHOTS = {
-    "https://caaciorg.com": "assets/cases/caaci.webp",
-    "https://iguide.chat": "assets/cases/iguide.webp",
-    "https://campustech.iguide.chat": "assets/cases/campustech.webp",
-}
+# --cases: a preview of our own Cases page (shown when hovering "RSO websites"
+# on the home page).
+# Case cards play demo clips now (tools/previews/record_cases.py); --cases only
+# refreshes the preview of our own Cases page.
+CASE_SHOTS = {}
 PAGE_PREVIEWS = {"cases.html": "assets/previews/campustech-cases.webp"}
 
 

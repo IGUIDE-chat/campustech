@@ -56,7 +56,8 @@ nothing gates the deploy, so **`main` is production**. Python scripts under
 | One browser test | `python tools/ci/test_site.py <test_name>` |
 | Simulate a slow CPU | `SLOW=4 python tools/ci/test_site.py` |
 | Logo, favicons | `python tools/images/logo.py` |
-| Social card, coming-soon cards | `python tools/images/render.py` |
+| Link preview (`og.jpg`, from the real hero) | `python tools/images/og_capture.py`, then `python tools/images/og_capture.py <n>` to keep candidate n |
+| Coming-soon cards | `python tools/images/render.py` |
 | Link-preview screenshots | `python tools/previews/capture.py` (needs Chrome and Pillow) |
 | Case screenshots and the Cases page preview | `python tools/previews/capture.py --cases` |
 | Ping IndexNow (Bing, Yandex…) after a deploy is live | `python tools/seo/indexnow.py` (all sitemap URLs) or `python tools/seo/indexnow.py /cases /faq` |
@@ -157,7 +158,7 @@ Browser tests need `pip install playwright==1.58.0 pillow` and
 - Target query: "campus tech at uiuc". Every title contains "Campus Tech at
   UIUC"; the JSON-LD `alternateName` list carries the variants.
 - Every page: unique title and description, clean canonical (no `.html`), Open
-  Graph and Twitter tags, `assets/og.png`, one `h1`. 404 and coming-soon are
+  Graph and Twitter tags, `assets/og.jpg`, one `h1`. 404 and coming-soon are
   `noindex`.
 - Structured data: `Organization` and `WebSite` on the home page (with officers
   and products), `BreadcrumbList` on sub pages, `Article` on articles, `FAQPage`

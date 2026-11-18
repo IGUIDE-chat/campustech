@@ -266,7 +266,7 @@ for f in TEXT_FILES:
 # --- Hero markup: one h1 "Campus Tech" with TECH inside it, the tagline links
 #     "products" to the Products section (6b7d68a), next-section links exist.
 index = (ROOT / "index.html").read_text(encoding="utf-8")
-if not re.search(r'<h1>Campus<span class="hero-sub">Tech</span></h1>', index):
+if not re.search(r'<h1>Campus<span class="hero-sub">Tech</span><span class="sr-only"> at UIUC</span></h1>', index):
     fail("hero", "hero h1 markup changed")
 if 'We build <a href="#products">products</a> for campus life.' not in index:
     fail("hero", "tagline link to #products is missing")
@@ -310,12 +310,25 @@ for name in ("index.html", "cases.html"):
             fail("previews", f"{name}: no hover preview for {url} (run tools/previews/capture.py)")
 if rso and "campustech-cases" not in rso.group(1):
     fail("previews", "Products: 'RSO websites' should preview the Cases page it links to")
-# Cases cards show a screenshot of each site (an image, not just text).
+# Cases cards show each site, not just text: a muted inline demo clip with a
+# poster, in MP4 (H.264) and WebM (for browsers without H.264), files present.
 cases_html = cases.read_text(encoding="utf-8") if cases.exists() else ""
 for card in re.findall(r'<article class="case">.*?</article>', cases_html, re.S) or [""]:
-    img = re.search(r'class="case-shot"[^>]*>\s*<img src="([^"]+)"', card)
-    if not img or not (ROOT / img.group(1)).exists():
-        fail("cases", "a Cases card has no screenshot (or its image file is missing)")
+    video = re.search(r"<video [^>]*>.*?</video>", card, re.S)
+    if not video:
+        fail("cases", "a Cases card has no demo clip")
+        continue
+    tag = video.group(0)
+    poster = re.search(r'poster="([^"]+)"', tag)
+    sources = dict((t, s) for s, t in re.findall(r'<source src="([^"]+)" type="(video/[a-z0-9]+)"', tag))
+    if not poster or not (ROOT / poster.group(1)).exists():
+        fail("cases", "a case clip has no poster image (or it is missing)")
+    for kind in ("video/mp4", "video/webm"):
+        if kind not in sources or not (ROOT / sources[kind]).exists():
+            fail("cases", f"a case clip has no {kind} source (or the file is missing)")
+    for attr in ("muted", "loop", "playsinline"):
+        if f" {attr}" not in tag.split(">", 1)[0]:
+            fail("cases", f"a case clip is missing '{attr}' (needed to autoplay inline on phones)")
 
 # --- SEO / GEO: structured data, feed, sitemap images, crawler access, and the
 #     disambiguation from UIUC Technology Services (which outranked us for
@@ -359,6 +372,30 @@ robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
 for bot in ("GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "Applebot-Extended", "Bingbot"):
     if f"User-agent: {bot}\nAllow: /" not in robots:
         fail("geo", f"robots.txt must allow {bot}")
+# Link previews: every page's og:image and twitter:image is a file in the repo.
+for p in PAGES:
+    for url in re.findall(r'<meta (?:property="og:image"|name="twitter:image") content="https://campustech\.iguide\.chat/([^"]+)"', p.read_text(encoding="utf-8")):
+        if not (ROOT / url).exists():
+            fail("seo", f"{rel(p)}: link preview image missing: {url}")
+
+# Audit findings (2026-11-18): snippet lengths, headings, internal links, HSTS.
+for p in PAGES:
+    html = p.read_text(encoding="utf-8")
+    t = re.search(r"<title>(.*?)</title>", html, re.S)
+    d = re.search(r'<meta name="description" content="([^"]*)"', html)
+    if t and len(t.group(1)) > 70:
+        fail("seo", f"{rel(p)}: <title> is {len(t.group(1))} characters (Google cuts at ~60-70)")
+    if d and len(d.group(1)) > 165:
+        fail("seo", f"{rel(p)}: description is {len(d.group(1))} characters (Google cuts at ~155-160)")
+    if rel(p).startswith("articles/") and not rel(p).endswith("index.html") and 'class="related"' not in html:
+        fail("seo", f"{rel(p)}: no related links (FAQ, Cases, other articles) under the article")
+if '<span class="sr-only"> at UIUC</span></h1>' not in index:
+    fail("seo", "home h1 must read 'Campus Tech at UIUC' to search engines and screen readers")
+if cases_html.count('<h2 class="case-name">') != cases_html.count('<article class="case">'):
+    fail("seo", "cases.html: every case name must be an h2")
+headers = (ROOT / "_headers").read_text(encoding="utf-8") if (ROOT / "_headers").exists() else ""
+if "Strict-Transport-Security: max-age=" not in headers:
+    fail("seo", "_headers must send Strict-Transport-Security")
 keys = [p for p in ROOT.glob("*.txt") if re.fullmatch(r"[0-9a-f]{32}\.txt", p.name)]
 if len(keys) != 1 or keys[0].read_text(encoding="utf-8").strip() != keys[0].stem:
     fail("seo", "IndexNow: expected one key file <key>.txt at the root containing the key")

@@ -19,8 +19,8 @@ Key facts:
 - [Cases](https://campustech.iguide.chat/cases): websites we built: CAACI (https://caaciorg.com), iGuide (https://iguide.chat) and this site
 - [Past](https://campustech.iguide.chat/past): past products and presidents
 - [Articles](https://campustech.iguide.chat/articles/): news and guides
-- [Introducing Campus Tech at UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
-- [Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply](https://campustech.iguide.chat/articles/fall-2026-recruiting): Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+- [Introducing Campus Tech at UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech at UIUC is a student organization building products for campus life, starting with an AI campus assistant and a dorm guide.
+- [Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply](https://campustech.iguide.chat/articles/fall-2026-recruiting): Campus Tech at UIUC Fall 2026 Round 1 recruiting: programming, design, marketing, business and admin roles. Apply by 11:59 PM CT, November 29, 2026.
 - [Have an Idea for a Campus Product? Pitch It to Campus Tech](https://campustech.iguide.chat/articles/pitch-your-idea): Campus Tech at UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.
 - [FAQ](https://campustech.iguide.chat/faq): short answers about the organization
 - [Privacy Policy](https://campustech.iguide.chat/privacy)
@@ -101,25 +101,27 @@ Websites we have built.Every RSO can get one.
 website
 NonprofitBilingual site · Memberships · Events
 
-CAACI — by  Campus Tech
+## CAACI — by  Campus Tech
 
 Chinese American Association of Central Illinois
 
 web app
 CampusAI chat · Dorm guide · English and 中文
 
-iGuide — by  Campus Tech
+## iGuide — by  Campus Tech
 
 A bilingual campus assistant for UIUC students
 
 website
 Student orgWebGL · Smooth scroll · Light switch
 
-Campus Tech — by  Campus Tech
+## Campus Tech — by  Campus Tech
 
 This site: neon tubes, a pull-cord light switch, text that moves with the scroll
 
 - Your RSO — Get a site like these
+
+- FAQ — How RSO websites and joining work
 
 ---
 
@@ -219,11 +221,11 @@ News and guides from Campus Tech at UIUC.
 
 ## Introducing Campus Tech at UIUC
 
-Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
+Campus Tech at UIUC is a student organization building products for campus life, starting with an AI campus assistant and a dorm guide.
 
 ## Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply
 
-Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.
+Campus Tech at UIUC Fall 2026 Round 1 recruiting: programming, design, marketing, business and admin roles. Apply by 11:59 PM CT, November 29, 2026.
 
 ## Have an Idea for a Campus Product? Pitch It to Campus Tech
 
@@ -264,6 +266,8 @@ The organization is run by student officers: Michael Li (President), George Wang
 ## Get involved
 
 Fall 2026 Round 1 recruiting is open for programming, design, marketing, business and administration roles. Read how to apply, or pitch a product idea. You can also email us at techadmin.campustech@gmail.com.
+
+More: Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply · Have an Idea for a Campus Product? Pitch It to Campus Tech · FAQ · Websites we have built
 
 ---
 
@@ -321,6 +325,8 @@ Q: Can I join as an advisor?
 
 A: Yes. Faculty and staff interested in advising can get in touch through the same application form or by emailing techadmin.campustech@gmail.com.
 
+More: Introducing Campus Tech at UIUC · Have an Idea for a Campus Product? Pitch It to Campus Tech · FAQ · Websites we have built
+
 ---
 
 # https://campustech.iguide.chat/articles/pitch-your-idea
@@ -350,6 +356,8 @@ Use the Pitch Your Idea form. Our team reads every idea, and we will reach out b
 ## What happens next
 
 Promising ideas can become Campus Tech projects, built by members across programming, design, marketing and business. If you would like to help build it yourself, also apply to join.
+
+More: Introducing Campus Tech at UIUC · Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply · FAQ · Websites we have built
 
 ---
 
@@ -420,3 +428,5 @@ Q: Where is Campus Tech based?
 A: At the University of Illinois Urbana-Champaign, in Champaign-Urbana, Illinois.
 
 Ready to apply? Read how to join, or pitch an idea.
+
+See the websites we have built on the Cases page, or read Introducing Campus Tech at UIUC.
