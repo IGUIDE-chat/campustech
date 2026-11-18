@@ -648,6 +648,32 @@ def hero_lines_share_an_optical_left_edge(site):
 
 
 @test
+def link_preview_lines_share_a_left_edge(site):
+    """The iMessage preview showed the URL line 150px left of the lockup (a fixed padding, not the
+    lockup's edge). In assets/og.jpg every text line starts on one edge: TECH, the tagline and the
+    URL within 2px, CAMPUS's round C at most 8px past them, never short of them."""
+    from PIL import Image
+
+    im = Image.open(ROOT / "assets" / "og.jpg").convert("L")
+    w, h = im.size
+    px = im.load()
+    # Text is on the left; the tubes glow on the right half.
+    edges = [min((x for x in range(w // 2) if px[x, y] > 90), default=None) for y in range(h)]
+    lines, start = [], None
+    for y, x in enumerate(edges + [None]):
+        if x is not None and start is None:
+            start = y
+        elif x is None and start is not None:
+            if y - start > 4:
+                lines.append(min(edges[start:y]))
+            start = None
+    assert len(lines) == 4, f"expected 4 text lines in og.jpg (CAMPUS, TECH, tagline, URL), found {len(lines)}: {lines}"
+    campus, *rest = lines
+    assert max(rest) - min(rest) <= 2, f"TECH, tagline and URL start at x={rest}, not one edge"
+    assert 0 <= min(rest) - campus <= 8, f"CAMPUS starts at x={campus}, the other lines at {min(rest)}"
+
+
+@test
 def type_is_fluid(site):
     """d76c474: font sizes scale down on narrow screens."""
     big = site.open("/", width=1280)

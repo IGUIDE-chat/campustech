@@ -28,7 +28,7 @@ VIEW = {"width": 600, "height": 315}
 HIDE = """
   .nav, #cord, .pullcord, .hero-align, .next, #loader, .preview { display: none !important; }
   html, body { overflow: hidden !important; }
-  #og-url { position: fixed; left: 0; right: 0; bottom: 20px; z-index: 50; padding-left: 42px;
+  #og-url { position: fixed; left: 0; right: 0; bottom: 20px; z-index: 50;
             font: 500 11px Montserrat, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #6e6e74; }
 """
 
@@ -56,6 +56,12 @@ def main():
         page.add_style_tag(content=HIDE)
         page.evaluate("document.body.insertAdjacentHTML('beforeend', '<div id=\"og-url\">campustech.iguide.chat · UIUC</div>')")
         page.wait_for_timeout(2500)
+        # The URL line shares the lockup's left edge: start it where the tagline's text starts.
+        page.evaluate("""() => {
+          const r = document.createRange();
+          r.selectNodeContents(document.querySelector('.tagline'));
+          document.getElementById('og-url').style.paddingLeft = r.getClientRects()[0].left + 'px';
+        }""")
         # Sweep the cursor around the right side so the tubes swirl beside the lockup.
         n = 0
         for a in range(0, 160):
