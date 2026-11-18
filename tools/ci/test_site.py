@@ -683,6 +683,20 @@ def link_preview_lines_share_a_left_edge(site):
 
 
 @test
+def link_preview_margins_match_with_the_haze_as_content(site):
+    """Review: a dead black band on the left, then 'the red haze is not empty space'. The tubes'
+    haze counts as content, so it must end about as far from the right edge as the text starts
+    from the left (within 30px), and never run off the edge."""
+    sys.path.insert(0, str(ROOT / "tools" / "images"))
+    from og_capture import margins
+    from PIL import Image
+
+    left, right = margins(Image.open(ROOT / "assets" / "og.jpg"))
+    assert right > 0, "the tubes' haze runs off the right edge of og.jpg"
+    assert abs(left - right) <= 30, f"og.jpg margins: left {left}px, right {right}px (haze counts as content)"
+
+
+@test
 def type_is_fluid(site):
     """d76c474: font sizes scale down on narrow screens."""
     big = site.open("/", width=1280)

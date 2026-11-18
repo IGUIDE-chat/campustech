@@ -11,6 +11,7 @@
  "lines_never_fight_the_scroll_direction": 4,
  "link_preview_centres_on_the_link_text": 2,
  "link_preview_lines_share_a_left_edge": 1,
+ "link_preview_margins_match_with_the_haze_as_content": 1,
  "loading_screen_hidden_after_load_and_previewable": 4,
  "nav_hides_while_scrolling_and_returns": 2,
  "nav_jumps_show_the_section_and_keep_it_shown": 26,

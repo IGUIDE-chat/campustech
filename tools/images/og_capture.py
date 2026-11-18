@@ -36,6 +36,16 @@ HIDE = """
 """
 
 
+def margins(im, lift=6):
+    """(left, right) empty margins in px. The tubes' red haze counts as content, not as
+    margin: a column is empty only if no pixel in it is more than `lift` above the background."""
+    px = im.convert("RGB").load()
+    w, h = im.size
+    bg = sum(px[4, 4])
+    used = [x for x in range(w) if any(sum(px[x, y]) - bg > lift for y in range(0, h, 3))]
+    return used[0], w - 1 - used[-1]
+
+
 def main():
     if len(sys.argv) > 1:
         src = CANDIDATES / f"og-{sys.argv[1]}.jpg"
@@ -65,19 +75,23 @@ def main():
           r.selectNodeContents(document.querySelector('.tagline'));
           document.getElementById('og-url').style.paddingLeft = r.getClientRects()[0].left + 'px';
         }""")
-        # Sweep the cursor around the right side so the tubes swirl beside the lockup.
+        # Sweep the cursor beside the lockup so the tubes swirl there. Kept left of the edge:
+        # their haze must end about as far from the right edge as the text starts from the left.
         n = 0
         for a in range(0, 160):
             t = a / 10
-            page.mouse.move(470 + 95 * math.cos(t), 160 + 105 * math.sin(t * 1.3), steps=2)
+            page.mouse.move(430 + 70 * math.cos(t), 160 + 100 * math.sin(t * 1.3), steps=2)
             page.wait_for_timeout(16)
-            if a in (40, 70, 100, 130, 159):
+            if a >= 40 and a % 12 == 4:
                 n += 1
                 with Image.open(io.BytesIO(page.screenshot())) as im:
-                    im.convert("RGB").resize((1200, 630), Image.LANCZOS).save(CANDIDATES / f"og-{n}.jpg", "JPEG", quality=90)
+                    card = im.convert("RGB").resize((1200, 630), Image.LANCZOS)
+                card.save(CANDIDATES / f"og-{n}.jpg", "JPEG", quality=90)
+                left, right = margins(card)
+                print(f"  og-{n}.jpg  margins left {left}px, right {right}px (haze counts as content)")
         browser.close()
     server.shutdown()
-    print(f"wrote {n} candidates to {CANDIDATES}")
+    print(f"wrote {n} candidates to {CANDIDATES}; keep one whose margins match")
 
 
 if __name__ == "__main__":
