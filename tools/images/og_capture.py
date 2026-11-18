@@ -28,6 +28,9 @@ VIEW = {"width": 600, "height": 315}
 HIDE = """
   .nav, #cord, .pullcord, .hero-align, .next, #loader, .preview { display: none !important; }
   html, body { overflow: hidden !important; }
+  /* The page centres the lockup; on the card that left a dead band on the left while the
+     tubes filled the right. Start it 8% in (48 of 600 CSS px) and give the tubes the rest. */
+  .hero { align-items: flex-start !important; padding-left: 48px !important; }
   #og-url { position: fixed; left: 0; right: 0; bottom: 20px; z-index: 50;
             font: 500 11px Montserrat, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #6e6e74; }
 """
