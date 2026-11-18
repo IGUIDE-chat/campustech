@@ -4,6 +4,13 @@ lockup with the actual neon tubes, nav and cord hidden.
     python tools/images/og_capture.py          # writes candidates to tools/images/og-candidates/
     python tools/images/og_capture.py 2        # keeps candidate 2 as assets/og.jpg
 
+Only balanced candidates are kept: the text starts as far from the left edge as the tubes'
+haze ends from the right. The current og.jpg is an upward arc from lower left to upper right:
+
+    OG_STROKE=320,280,450,275,470,45 python tools/images/og_capture.py   # then keep the first
+    OG_PHASE=1.7 OG_SWEEP=430,70,100 python tools/images/og_capture.py   # free swirls instead
+    OG_DEBUG=1 ...                                                         # also save rejects
+
 Uses the installed Chrome with a window, so the tubes render on the GPU.
 """
 
@@ -11,6 +18,7 @@ import functools
 import http.server
 import io
 import math
+import os
 import socketserver
 import sys
 import threading
@@ -77,21 +85,55 @@ def main():
         }""")
         # Sweep the cursor beside the lockup so the tubes swirl there. Kept left of the edge:
         # their haze must end about as far from the right edge as the text starts from the left.
-        n = 0
-        for a in range(0, 160):
-            t = a / 10
-            page.mouse.move(430 + 70 * math.cos(t), 160 + 100 * math.sin(t * 1.3), steps=2)
-            page.wait_for_timeout(16)
-            if a >= 40 and a % 12 == 4:
+        # Snapshot often; keep only balanced cards (haze off the edge, margins within 30px).
+        for old in CANDIDATES.glob("og-*.jpg"):
+            old.unlink()
+        n = shots = 0
+
+        def snap(note=""):
+            nonlocal n, shots
+            shots += 1
+            with Image.open(io.BytesIO(page.screenshot())) as im:
+                card = im.convert("RGB").resize((1200, 630), Image.LANCZOS)
+            left, right = margins(card)
+            if right > 0 and abs(left - right) <= 30:
                 n += 1
-                with Image.open(io.BytesIO(page.screenshot())) as im:
-                    card = im.convert("RGB").resize((1200, 630), Image.LANCZOS)
                 card.save(CANDIDATES / f"og-{n}.jpg", "JPEG", quality=90)
-                left, right = margins(card)
-                print(f"  og-{n}.jpg  margins left {left}px, right {right}px (haze counts as content)")
+                print(f"  og-{n}.jpg  margins left {left}px, right {right}px (haze counts as content) {note}")
+            elif os.environ.get("OG_DEBUG"):
+                card.save(CANDIDATES / f"rejected-{shots}.jpg", "JPEG", quality=90)
+                print(f"  rejected-{shots}.jpg  margins left {left}px, right {right}px {note}")
+
+        stroke = os.environ.get("OG_STROKE")
+        if stroke:
+            # Draw one shape: the tubes trail the cursor, so they take the path it just drew.
+            # OG_STROKE="x0,y0,cx,cy,x1,y1" is a quadratic curve in CSS px; e.g. lower left to
+            # upper right, bending upward: start, a control point low on the right, end high.
+            x0, y0, qx, qy, x1, y1 = map(float, stroke.split(","))
+            for frames in (14, 20, 28, 38):
+                page.mouse.move(x0, y0, steps=8)
+                page.wait_for_timeout(1800)  # let the trail gather at the start
+                for i in range(frames + 1):
+                    u = i / frames
+                    page.mouse.move((1 - u) ** 2 * x0 + 2 * u * (1 - u) * qx + u * u * x1,
+                                    (1 - u) ** 2 * y0 + 2 * u * (1 - u) * qy + u * u * y1)
+                    page.wait_for_timeout(16)
+                for after in (0, 3, 6, 10):
+                    page.wait_for_timeout(16 * after)
+                    snap(f"stroke {frames} frames, +{after}")
+        else:
+            # Other poses: OG_PHASE (start of the loop), OG_SWEEP="cx,rx,ry" (its centre and size, CSS px).
+            phase = float(os.environ.get("OG_PHASE", "0"))
+            cx, rx, ry = map(float, os.environ.get("OG_SWEEP", "430,70,100").split(","))
+            for a in range(0, 400):
+                t = a / 10 + phase
+                page.mouse.move(cx + rx * math.cos(t), 160 + ry * math.sin(t * 1.3), steps=2)
+                page.wait_for_timeout(16)
+                if a >= 40 and a % 6 == 4:
+                    snap()
         browser.close()
     server.shutdown()
-    print(f"wrote {n} candidates to {CANDIDATES}; keep one whose margins match")
+    print(f"kept {n} balanced candidates of {shots} snapshots in {CANDIDATES}")
 
 
 if __name__ == "__main__":
