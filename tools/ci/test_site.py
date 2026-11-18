@@ -321,6 +321,31 @@ def phones_skip_the_trail(site):
     Site.close(page)
 
 
+@test
+def haze_shows_while_the_tubes_load(site):
+    """Phone, cold load: the red haze was missing for 1-2s after the loading screen went,
+    while the tubes' bundle downloaded and drew its first frame. Hold the bundle back:
+    the static haze must already show, then fade once the tubes draw. The bundle is fetched
+    once (a <head> preload was tried: it held the loading screen back 1.8s, so it was dropped)."""
+    ctx = site.browser.new_context(**PHONE)
+    held, requests = [], []
+    ctx.route("**/vendor/tubes1.min.js*", lambda route: (requests.append(route.request.url), held.append(route)))
+    page = ctx.new_page()
+    page.goto(site.base + "/", wait_until="domcontentloaded")
+    haze = "() => { const s = getComputedStyle(document.body, '::before'); return [+s.opacity, s.backgroundImage.includes('radial-gradient')] }"
+    assert wait_for(page, "() => document.documentElement.classList.contains('loaded')", timeout=10000), "loading screen never went"
+    opacity, painted = page.evaluate(haze)
+    assert painted and opacity > 0.95, f"loading screen gone but no haze while the tubes load (opacity {opacity}, gradient {painted})"
+    assert not page.evaluate("document.body.classList.contains('tubes-live')"), "tubes-live set before the tubes loaded"
+    assert held, "the tubes bundle was never requested"
+    for route in held:
+        route.continue_()
+    assert wait_for(page, "() => document.body.classList.contains('tubes-live')", timeout=30000), "tubes never went live"
+    assert wait_for(page, f"() => ({haze})()[0] < 0.05", timeout=5000), "static haze did not fade under the live tubes"
+    assert len(requests) == 1, f"tubes bundle fetched {len(requests)} times: {requests}"
+    Site.close(page)
+
+
 # ---------------------------------------------------------------- scrolling and nav
 
 

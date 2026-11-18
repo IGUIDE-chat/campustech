@@ -3,6 +3,7 @@
  "cord_is_on_top_and_grabbable_everywhere": 6,
  "cord_svg_holds_the_whole_swing": 3,
  "cord_switches_theme_on_release_not_while_held": 2,
+ "haze_shows_while_the_tubes_load": 8,
  "hero_left_by_default_toggle_centres_and_remembers": 2,
  "hero_lines_share_an_optical_left_edge": 6,
  "in_page_links_jump": 4,

@@ -838,13 +838,30 @@ html:not(.pinned) .nav.under::before {
   display: none;
 }
 
-/* Static stand-in when the effect cannot run or motion is reduced. */
-body.no-tubes {
+/* Static haze, under the tubes. In dark mode it shows from the first paint and fades
+   out once the tubes have drawn (body.tubes-live): on a cold phone load the tubes'
+   bundle and first frame land a second or more after the loading screen goes, and
+   the page used to sit flat black in between. It stays when the effect cannot run
+   or motion is reduced (body.no-tubes), in both themes. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
     radial-gradient(60vw 50vh at 25% 25%, rgba(249, 103, 251, 0.22), transparent 70%),
     radial-gradient(50vw 50vh at 75% 35%, rgba(105, 88, 213, 0.28), transparent 70%),
-    radial-gradient(60vw 40vh at 50% 85%, rgba(83, 188, 40, 0.16), transparent 70%), var(--page);
-  background-attachment: fixed;
+    radial-gradient(60vw 40vh at 50% 85%, rgba(83, 188, 40, 0.16), transparent 70%);
+  transition: opacity 0.9s ease;
+}
+
+body.tubes-live::before {
+  opacity: 0;
+}
+
+:root[data-theme="light"] body:not(.no-tubes)::before {
+  display: none;
 }
 
 body.no-tubes .bg {

@@ -12,7 +12,13 @@
 
 // Local copy of https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js
 // (byte-identical to the original page's vendor/tubes1.min.js).
+// Not preloaded from <head>: a modulepreload holds back the load event, and with it the
+// loading screen (+1.8s on a slow phone network) to show the tubes only ~0.5s sooner.
+// The static haze (body::before) covers the wait instead.
 const TUBES_URL = new URL("../vendor/tubes1.min.js", import.meta.url).href
+
+/** Frames the tubes draw before the page calls them live (the bloom settles in). */
+const READY_FRAMES = 3
 
 /** Seconds-scale rates for the exponential easing (higher is faster). */
 const ENTER_RATE = 2.2 // pointer arrives: orbit -> cursor
@@ -70,6 +76,9 @@ export async function startTubes(canvas) {
   let weight = 0
   let lastElapsed = null
   let touchTimer = 0
+  let drawn = 0
+  let markReady
+  const ready = new Promise((resolve) => (markReady = resolve))
 
   // Project the pointer onto the z = 0 plane the tubes live on.
   function setCursor(clientX, clientY) {
@@ -143,6 +152,8 @@ export async function startTubes(canvas) {
       tubes.target.lerp(desired, 1 - Math.exp(-FOLLOW_RATE * dt))
     }
     tubes.update(time)
+    // This hook runs before each render, so by call READY_FRAMES + 1 that many frames are on screen.
+    if (++drawn === READY_FRAMES + 1) markReady()
 
     if (followHead) {
       tubes.lights.forEach((light, i) => {
@@ -160,6 +171,8 @@ export async function startTubes(canvas) {
 
   return {
     tubes,
+    /** Resolves once the tubes have drawn a few real frames (never while the canvas is hidden). */
+    ready,
     /**
      * Switch the rendering between the "dark" and "light" looks. Call again after
      * changing tube colours so the light-mode tint follows the new colours.

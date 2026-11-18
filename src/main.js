@@ -1,5 +1,5 @@
 import { startDither } from "./dither.js?v=4416b6163d"
-import { startTubes } from "./tubes.js?v=ef6386e387"
+import { startTubes } from "./tubes.js?v=155e6fe5c6"
 
 // ---- Background (original script.js, with the smoothed cursor from tubes.js) ----
 
@@ -77,6 +77,8 @@ if (reduceMotion || !canvas) {
         attributes: true,
         attributeFilter: ["data-theme"],
       })
+      // The static haze (body::before) covers the wait; fade it once the tubes are drawing.
+      app.ready.then(() => document.body.classList.add("tubes-live"))
 
       tubesApp = app
     })
