@@ -56,6 +56,7 @@ nothing gates the deploy, so **`main` is production**. Python scripts under
 | One browser test | `python tools/ci/test_site.py <test_name>` |
 | Simulate a slow CPU | `SLOW=4 python tools/ci/test_site.py` |
 | One CI shard (CI runs 3 in parallel) | `python tools/ci/test_site.py --shard 2/3` (`--list` to see its tests) |
+| Would this change run the browser tests on CI? | `python tools/ci/changes.py HEAD~1` |
 | Change CI Python packages | edit `tools/ci/requirements.in`, then the `uv pip compile` line at its top |
 | Logo, favicons | `python tools/images/logo.py` |
 | Link preview (`og.jpg`, from the real hero) | `python tools/images/og_capture.py`, then `python tools/images/og_capture.py <n>` to keep candidate n |
@@ -70,6 +71,12 @@ Browser tests need `pip install -r tools/ci/requirements.txt` (the hashed lockfi
 and `python -m playwright install chromium`. Shards are balanced by
 `tools/ci/test_times.json` (CI seconds per test; new tests count as 3s): refresh it
 from a CI log when one shard runs much longer than the others.
+
+CI has two kinds of check. Necessary: the static checks, on every push and pull
+request. Conditional: the browser tests, only when a changed file can affect what
+the browser loads; docs, `_headers`, SEO text files and generator scripts under
+`tools/` (not `tools/ci/`) skip them. The rules are `SKIP` in `tools/ci/changes.py`;
+anything not listed runs the tests, and `check_static.py` pins examples of both.
 
 ## Done means
 

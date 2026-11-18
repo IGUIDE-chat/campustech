@@ -400,6 +400,23 @@ keys = [p for p in ROOT.glob("*.txt") if re.fullmatch(r"[0-9a-f]{32}\.txt", p.na
 if len(keys) != 1 or keys[0].read_text(encoding="utf-8").strip() != keys[0].stem:
     fail("seo", "IndexNow: expected one key file <key>.txt at the root containing the key")
 
+# CI split: the browser tests run only when a change can affect what the browser loads.
+# A wrong skip pattern would silently stop testing real site changes.
+sys.path.insert(0, str(ROOT / "tools" / "ci"))
+from changes import needs_browser  # noqa: E402
+
+for path, want in {
+    "index.html": True, "articles/pitch-your-idea.html": True, "src/main.js": True, "src/style.css": True,
+    "vendor/pullcord.js": True, "assets/og.jpg": True, "assets/cases/caaci.mp4": True,
+    "tools/ci/test_site.py": True, "tools/ci/requirements.txt": True, ".github/workflows/ci.yml": True,
+    "src/notes.md.js": True, "new-page.html": True,
+    "README.md": False, "AGENTS.md": False, "CNAME": False, "_headers": False, "robots.txt": False,
+    "sitemap.xml": False, "llms-full.txt": False, "articles/feed.xml": False,
+    "tools/images/og_capture.py": False, "tools/seo/indexnow.py": False, "tools/pullcord/PullCord.js": False,
+}.items():
+    if needs_browser([path])[0] != want:
+        fail("ci-split", f"tools/ci/changes.py: a change to {path} should {'' if want else 'not '}run the browser tests")
+
 if failures:
     print(f"{len(failures)} static check(s) failed:\n")
     print("\n".join(failures))
