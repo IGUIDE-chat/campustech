@@ -1,0 +1,4 @@
+# Python packages for CI (tools/ci). Edit here, then regenerate the lockfile:
+#   uv pip compile tools/ci/requirements.in --generate-hashes --python-version 3.12 --python-platform x86_64-manylinux_2_28 -o tools/ci/requirements.txt
+playwright==1.58.0
+pillow

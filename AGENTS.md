@@ -55,6 +55,8 @@ nothing gates the deploy, so **`main` is production**. Python scripts under
 | Browser tests (Playwright, ~3 min) | `python tools/ci/test_site.py` |
 | One browser test | `python tools/ci/test_site.py <test_name>` |
 | Simulate a slow CPU | `SLOW=4 python tools/ci/test_site.py` |
+| One CI shard (CI runs 3 in parallel) | `python tools/ci/test_site.py --shard 2/3` (`--list` to see its tests) |
+| Change CI Python packages | edit `tools/ci/requirements.in`, then the `uv pip compile` line at its top |
 | Logo, favicons | `python tools/images/logo.py` |
 | Link preview (`og.jpg`, from the real hero) | `python tools/images/og_capture.py`, then `python tools/images/og_capture.py <n>` to keep candidate n |
 | Coming-soon cards | `python tools/images/render.py` |
@@ -64,8 +66,10 @@ nothing gates the deploy, so **`main` is production**. Python scripts under
 | Rebuild the pull cord bundle | `cd tools/pullcord && npm install && npm run build` |
 | Find placeholders | `grep -n "TODO(campustech)" index.html` |
 
-Browser tests need `pip install playwright==1.58.0 pillow` and
-`python -m playwright install chromium`.
+Browser tests need `pip install -r tools/ci/requirements.txt` (the hashed lockfile)
+and `python -m playwright install chromium`. Shards are balanced by
+`tools/ci/test_times.json` (CI seconds per test; new tests count as 3s): refresh it
+from a CI log when one shard runs much longer than the others.
 
 ## Done means
 

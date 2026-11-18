@@ -3,10 +3,19 @@
 Serves the repo on a local port and replays, at desktop and phone sizes, every
 bug this site has had; each test names the commit or issue it guards. Lists
 every failure and exits non-zero if any test fails.
-Needs: pip install playwright && python -m playwright install chromium
+
+    python tools/ci/test_site.py                  # every test
+    python tools/ci/test_site.py name1 name2      # just these
+    python tools/ci/test_site.py --shard 2/3      # one of 3 even slices (CI runs them in parallel)
+    python tools/ci/test_site.py --shard 2/3 --list
+
+Shards are balanced by tools/ci/test_times.json (seconds per test on CI; new tests
+count as 3s until added). Refresh it from a CI log when the split drifts.
+Needs: pip install -r tools/ci/requirements.txt && python -m playwright install chromium
 """
 
 import functools
+import json
 import http.server
 import socketserver
 import sys
@@ -770,16 +779,37 @@ def rso_websites_previews_cases_and_cases_show_the_sites(site):
     Site.close(page)
 
 
+def shard(tests, k, n):
+    """Slice k of n (1-based): longest tests first, each to the lightest slice so far,
+    so the parallel CI jobs finish together. Deterministic, and keeps file order inside a slice."""
+    times = json.loads((ROOT / "tools" / "ci" / "test_times.json").read_text())
+    load, slices = [0.0] * n, [[] for _ in range(n)]
+    for fn in sorted(tests, key=lambda f: (-times.get(f.__name__, 3), f.__name__)):
+        i = load.index(min(load))
+        load[i] += times.get(fn.__name__, 3)
+        slices[i].append(fn)
+    return [fn for fn in tests if fn in slices[k - 1]]
+
+
 def main():
+    args = sys.argv[1:]
+    tests = TESTS
+    if "--shard" in args:
+        i = args.index("--shard")
+        k, n = map(int, args[i + 1].split("/"))
+        del args[i : i + 2]
+        tests = shard(TESTS, k, n)
+    only = {a for a in args if not a.startswith("--")}
+    tests = [fn for fn in tests if not only or fn.__name__ in only]
+    if "--list" in args:
+        print("\n".join(fn.__name__ for fn in tests))
+        return
     httpd, base = serve()
     failed = []
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         site = Site(browser, base)
-        only = set(sys.argv[1:])
-        for fn in TESTS:
-            if only and fn.__name__ not in only:
-                continue
+        for fn in tests:
             started = time.monotonic()
             try:
                 fn(site)

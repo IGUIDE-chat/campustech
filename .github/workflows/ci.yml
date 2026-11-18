@@ -11,27 +11,61 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same branch makes the older run moot.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  checks:
+  static:
+    name: Static checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generated files, asset hashes, SEO, links, privacy, licences
+        run: python tools/ci/check_static.py
+
+  browser:
+    name: Browser tests ${{ matrix.shard }}/3
     # Pinned: Playwright 1.58 cannot install Chromium on ubuntu-latest (26.04).
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/ci/requirements.txt
 
-      - name: Static checks (generated files, asset hashes, SEO, links, privacy, licences)
-        run: python tools/ci/check_static.py
+      - name: Install Python packages (locked, hash-checked)
+        run: pip install --require-hashes -r tools/ci/requirements.txt
 
-      - name: Install Playwright and Chromium
+      # The browser build follows the Playwright version, which the lockfile pins.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('tools/ci/requirements.txt') }}
+
+      # No --with-deps: the runner image ships Chrome and its system libraries, and
+      # the apt step took up to 6 minutes on slow mirrors. Fall back to it only if
+      # the headless shell cannot start.
+      - name: Install Chromium headless shell
         run: |
-          pip install playwright==1.58.0 pillow
-          python -m playwright install --with-deps chromium
+          python -m playwright install --only-shell chromium
+          python -c "from playwright.sync_api import sync_playwright as p; pw = p().start(); pw.chromium.launch().close(); pw.stop()" \
+            || python -m playwright install-deps chromium
 
       - name: Browser tests (desktop and phone)
         env:
           PYTHONUNBUFFERED: "1"
-        run: python tools/ci/test_site.py
+        run: python tools/ci/test_site.py --shard ${{ matrix.shard }}/3
