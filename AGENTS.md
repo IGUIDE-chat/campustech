@@ -58,6 +58,8 @@ nothing gates the deploy, so **`main` is production**. Python scripts under
 | Logo, favicons | `python tools/images/logo.py` |
 | Social card, coming-soon cards | `python tools/images/render.py` |
 | Link-preview screenshots | `python tools/previews/capture.py` (needs Chrome and Pillow) |
+| Case screenshots and the Cases page preview | `python tools/previews/capture.py --cases` |
+| Ping IndexNow (Bing, Yandex…) after a deploy is live | `python tools/seo/indexnow.py` (all sitemap URLs) or `python tools/seo/indexnow.py /cases /faq` |
 | Rebuild the pull cord bundle | `cd tools/pullcord && npm install && npm run build` |
 | Find placeholders | `grep -n "TODO(campustech)" index.html` |
 
@@ -160,8 +162,9 @@ Browser tests need `pip install playwright==1.58.0 pillow` and
 - Structured data: `Organization` and `WebSite` on the home page (with officers
   and products), `BreadcrumbList` on sub pages, `Article` on articles, `FAQPage`
   on the FAQ and recruiting article. Facts in the markup match the visible text.
-- `robots.txt` allows all crawlers, AI search crawlers included. `llms.txt` is
+- `robots.txt` allows all crawlers and names the AI ones explicitly (CI checks the main ones). `llms.txt` is
   a plain summary and `llms-full.txt` the full text of every indexed page.
+- Cases has `CollectionPage`/`ItemList` markup; the sitemap lists images; `articles/feed.xml` (Atom) is linked from every page; the FAQ, `llms.txt` and the Organization's `disambiguatingDescription` say we are not UIUC Technology Services. IndexNow key: the hex-named `.txt` at the root.
 - Google Search Console owns the property `https://campustech.iguide.chat/`
   (meta-tag verified) with the sitemap submitted.
 

@@ -399,8 +399,11 @@ if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
   // Resolved from this script, so pages in sub folders (articles/) find it too.
   fetch(new URL("assets/previews/manifest.json", siteRoot))
     .then((response) => (response.ok ? response.json() : {}))
-    .then((manifest) => {
-      for (const url in manifest) manifest[url] = new URL(manifest[url], siteRoot).href
+    .then((raw) => {
+      // Keys normalised like link.href: "https://caaciorg.com" is "https://caaciorg.com/"
+      // to the browser, and the bare form missed its preview.
+      const manifest = {}
+      for (const url in raw) manifest[new URL(url).href] = new URL(raw[url], siteRoot).href
       setUpPreviews(manifest)
     })
     .catch(() => {})
@@ -433,8 +436,12 @@ function setUpPreviews(manifest) {
 
   document.addEventListener("pointerover", (event) => {
     const link = event.target.closest("a[href]")
-    // data-preview (e.g. the coming-soon cards) wins over the screenshot manifest.
-    const src = link && (link.dataset.preview ? new URL(link.dataset.preview, siteRoot).href : manifest[link.href])
+    // data-preview (e.g. the coming-soon cards) wins over the screenshot manifest;
+    // data-no-preview (Cases cards, which already show the site) opts out.
+    const src =
+      link &&
+      !link.hasAttribute("data-no-preview") &&
+      (link.dataset.preview ? new URL(link.dataset.preview, siteRoot).href : manifest[link.href])
     if (!src || link === active) return
     active = link
     img.src = src

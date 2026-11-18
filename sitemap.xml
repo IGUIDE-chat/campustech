@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://campustech.iguide.chat/</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/past</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/cases</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/privacy</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/terms</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/articles/</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/articles/introducing-campus-tech</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/articles/fall-2026-recruiting</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/articles/pitch-your-idea</loc><lastmod>2026-11-17</lastmod></url>
-  <url><loc>https://campustech.iguide.chat/faq</loc><lastmod>2026-11-17</lastmod></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://campustech.iguide.chat/</loc><lastmod>2026-11-18</lastmod><image:image><image:loc>https://campustech.iguide.chat/assets/og.png</image:loc></image:image><image:image><image:loc>https://campustech.iguide.chat/assets/logo.png</image:loc></image:image></url>
+  <url><loc>https://campustech.iguide.chat/past</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/cases</loc><lastmod>2026-11-18</lastmod><image:image><image:loc>https://campustech.iguide.chat/assets/cases/caaci.webp</image:loc></image:image><image:image><image:loc>https://campustech.iguide.chat/assets/cases/iguide.webp</image:loc></image:image><image:image><image:loc>https://campustech.iguide.chat/assets/cases/campustech.webp</image:loc></image:image></url>
+  <url><loc>https://campustech.iguide.chat/privacy</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/terms</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/articles/</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/articles/introducing-campus-tech</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/articles/fall-2026-recruiting</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/articles/pitch-your-idea</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://campustech.iguide.chat/faq</loc><lastmod>2026-11-18</lastmod></url>
 </urlset>

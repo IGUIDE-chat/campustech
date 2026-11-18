@@ -7,11 +7,16 @@ Key facts:
 - Officers: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director), Chris Lopez (Treasurer). Advisor: Skylar Chu.
 - Recruiting: Fall 2026 Round 1, roles in programming, design, marketing, business and administration. Application plus short interview. Deadline 11:59 PM CT, Sunday November 29, 2026. Apply: https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform
 - Product ideas from any student: https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform
+- Websites for RSOs and other groups. Built so far: CAACI (https://caaciorg.com), the bilingual site of the Chinese American Association of Central Illinois; iGuide (https://iguide.chat), a bilingual campus assistant; and this site. Ask: techadmin.campustech@gmail.com
+- Founded in 2026; registered as a UIUC student organization in November 2026. Based at the University of Illinois Urbana-Champaign, Champaign-Urbana, Illinois.
+- Not affiliated with UIUC Technology Services (the University's IT department), and this is not an official University website.
+- Also called: Campus Tech at UIUC, Campus Tech @ UIUC, Campus Tech UIUC, Campus Tech Illinois.
 - Contact: techadmin.campustech@gmail.com
+- Articles feed: https://campustech.iguide.chat/articles/feed.xml
 
 ## Pages
 - [Home](https://campustech.iguide.chat/): products, recruiting, team and contact
-- [Cases](https://campustech.iguide.chat/cases): websites built for organizations, starting with CAACI (https://caaciorg.com)
+- [Cases](https://campustech.iguide.chat/cases): websites we built: CAACI (https://caaciorg.com), iGuide (https://iguide.chat) and this site
 - [Past](https://campustech.iguide.chat/past): past products and presidents
 - [Articles](https://campustech.iguide.chat/articles/): news and guides
 - [Introducing Campus Tech at UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.
@@ -85,15 +90,36 @@ techadmin.campustech@gmail.com
 
 # https://campustech.iguide.chat/cases
 
+Built by  Campus Tech
+
 ## Cases
 
-Websites we have built for organizations. Every RSO can get one.
+Websites we have built.Every RSO can get one.
 
-- CAACI — Chinese American Association of Central Illinois · caaciorg.com
+3 items.
 
-Bilingual pages in English and 中文, memberships and family plans, event registration and volunteers, a business directory, and a back office where staff edit text and photos without code.
+website
+NonprofitBilingual site · Memberships · Events
 
-- Your RSO — Get a site like this
+CAACI — by  Campus Tech
+
+Chinese American Association of Central Illinois
+
+web app
+CampusAI chat · Dorm guide · English and 中文
+
+iGuide — by  Campus Tech
+
+A bilingual campus assistant for UIUC students
+
+website
+Student orgWebGL · Smooth scroll · Light switch
+
+Campus Tech — by  Campus Tech
+
+This site: neon tubes, a pull-cord light switch, text that moves with the scroll
+
+- Your RSO — Get a site like these
 
 ---
 
@@ -331,7 +357,7 @@ Promising ideas can become Campus Tech projects, built by members across program
 
 ## Frequently asked questions
 
-Last updated: November 17, 2026
+Last updated: November 18, 2026
 
 Q: What is Campus Tech at UIUC?
 
@@ -372,5 +398,25 @@ A: Email techadmin.campustech@gmail.com.
 Q: Is this an official University of Illinois website?
 
 A: No. Campus Tech is a registered student organization, and this is not an official University website.
+
+Q: Is Campus Tech part of UIUC Technology Services?
+
+A: No. Campus Tech at UIUC is a student organization that builds products for campus life. Technology Services is the University of Illinois IT department; the two are not affiliated.
+
+Q: Does Campus Tech build websites for RSOs?
+
+A: Yes. Campus Tech builds websites for registered student organizations and other groups, such as caaciorg.com for the Chinese American Association of Central Illinois. Email techadmin.campustech@gmail.com to ask about a site for your RSO.
+
+Q: What websites has Campus Tech built?
+
+A: CAACI (caaciorg.com), the bilingual website of the Chinese American Association of Central Illinois; iGuide (iguide.chat), a bilingual campus assistant for UIUC students; and campustech.iguide.chat, the Campus Tech website. The Cases page shows all of them.
+
+Q: When was Campus Tech founded?
+
+A: In 2026. Campus Tech registered as a student organization at UIUC in November 2026.
+
+Q: Where is Campus Tech based?
+
+A: At the University of Illinois Urbana-Champaign, in Champaign-Urbana, Illinois.
 
 Ready to apply? Read how to join, or pitch an idea.

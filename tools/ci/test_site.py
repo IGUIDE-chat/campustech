@@ -610,6 +610,41 @@ def hero_left_by_default_toggle_centres_and_remembers(site):
     Site.close(page)
 
 
+HERO_INK_JS = """async () => {
+  await document.fonts.ready
+  const bearing = (weight, ch) => {  // left side bearing / font size, by pixel scan at 1000px
+    const size = 1000, pad = 200, cv = document.createElement('canvas')
+    cv.width = size * 2; cv.height = size * 1.6
+    const c = cv.getContext('2d'); c.font = `${weight} ${size}px Montserrat`; c.fillText(ch, pad, size * 1.2)
+    const d = c.getImageData(0, 0, cv.width, cv.height).data
+    let left = cv.width
+    for (let y = 0; y < cv.height; y++) for (let x = 0; x < left; x++) if (d[(y * cv.width + x) * 4 + 3] > 127) { left = x; break }
+    return (left - pad) / size
+  }
+  const h1 = document.querySelector('.hero h1'), sub = h1.querySelector('.hero-sub'), tag = document.querySelector('.hero .tagline')
+  const ink = (el, node) => {
+    const s = getComputedStyle(el), r = document.createRange(), size = parseFloat(s.fontSize)
+    r.setStart(node, 0); r.setEnd(node, 1)
+    return { x: r.getBoundingClientRect().left + bearing(s.fontWeight, node.textContent.trim()[0].toUpperCase()) * size, size }
+  }
+  const C = ink(h1, h1.firstChild), T = ink(sub, sub.firstChild), W = ink(tag, tag.firstChild)
+  return { overshootEm: (T.x - C.x) / C.size, techVsTagline: T.x - W.x }
+}"""
+
+
+@test
+def hero_lines_share_an_optical_left_edge(site):
+    """Skylar's review: left-aligned, CAMPUS looked indented. Each size has its own side bearing
+    (the bold C starts 0.039em in), and a round C needs to overshoot a straight T. The ink of TECH
+    and the tagline must line up, with the C 0.01-0.03em past them, at every screen width."""
+    for width in (360, 768, 1280, 1920):
+        page = site.open("/", width=width)
+        r = page.evaluate(HERO_INK_JS)
+        assert abs(r["techVsTagline"]) <= 0.6, f"{width}px: TECH and the tagline start {r['techVsTagline']:.2f}px apart"
+        assert 0.01 <= r["overshootEm"] <= 0.03, f"{width}px: CAMPUS's C overshoots by {r['overshootEm']:.3f}em (want 0.01-0.03)"
+        Site.close(page)
+
+
 @test
 def type_is_fluid(site):
     """d76c474: font sizes scale down on narrow screens."""
@@ -656,6 +691,41 @@ def link_preview_centres_on_the_link_text(site):
     )
     assert r["op"] > 0.5, "no preview card on hover"
     assert abs(r["p"] - r["t"]) <= 4, f"preview centre {r['p']:.0f} vs link text centre {r['t']:.0f}"
+    Site.close(page)
+
+
+@test
+def rso_websites_previews_cases_and_cases_show_the_sites(site):
+    """'rso website加悬浮预览' / 'should preview cases': hovering 'RSO websites' previews the Cases
+    page it links to. 'cases should show the cases, not just text': each card shows a loaded
+    screenshot of the site, and hovering it pops up no second preview."""
+    page = site.open("/")
+    link = page.locator("#products a", has_text="RSO websites").first
+    link.scroll_into_view_if_needed()
+    wait_for(page, "document.querySelector('.nav').classList.contains('show')", timeout=8000)
+    li = "[...document.querySelectorAll('#products li')].find(li => li.textContent.includes('RSO websites'))"
+    assert wait_for(page, f"+getComputedStyle({li}).opacity > 0.95"), "the RSO websites line never became visible"
+    box = link.bounding_box()
+    page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+    assert wait_for(page, "+getComputedStyle(document.querySelector('.preview')).opacity > 0.9", timeout=5000), "no preview on RSO websites"
+    src = page.evaluate("document.querySelector('.preview img').src")
+    assert "campustech-cases" in src, f"RSO websites previews {src}, not the Cases page it links to"
+    assert wait_for(page, "document.querySelector('.preview img').naturalWidth > 0", timeout=5000), "the preview image did not load"
+    Site.close(page)
+
+    page = site.open("/cases.html")
+    shot = page.locator(".case-shot img").first
+    shot.scroll_into_view_if_needed()
+    assert wait_for(page, "(() => { const i = document.querySelector('.case-shot img'); return i.complete && i.naturalWidth > 0 })()", timeout=8000), "the case screenshot did not load"
+    assert wait_for(page, "+getComputedStyle(document.querySelector('.cases')).opacity > 0.95"), "the cases gallery never became visible"
+    w = page.evaluate("document.querySelector('.case-shot img').getBoundingClientRect().width")
+    assert w >= 300, f"the case screenshot is only {w:.0f}px wide"
+    assert "caaciorg.com" in page.evaluate("document.querySelector('.case-shot').href"), "the CAACI card does not link to caaciorg.com"
+    box = shot.bounding_box()
+    page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+    page.wait_for_timeout(600)
+    op = page.evaluate("(() => { const p = document.querySelector('.preview'); return p ? +getComputedStyle(p).opacity : 0 })()")
+    assert op < 0.1, "hovering a case screenshot popped up a second preview"
     Site.close(page)
 
 

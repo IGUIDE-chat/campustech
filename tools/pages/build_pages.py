@@ -17,7 +17,8 @@ ORG_NAME = "Campus Tech @ University of Illinois Urbana-Champaign"
 EMAIL = "techadmin.campustech@gmail.com"
 APPLY = "https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform"
 PITCH = "https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform"
-UPDATED = "2026-11-17"
+UPDATED = "2026-11-17"  # articles' publish date
+SITE_UPDATED = "2026-11-18"  # sitemap lastmod, FAQ "last updated"
 
 
 def pretty(path):
@@ -79,6 +80,7 @@ def page(path, title, description, body, active="", schema=None, og_type="websit
   <link rel="icon" href="{up}assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="{up}assets/favicon-192.png" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="{up}assets/apple-touch-icon.png">
+  <link rel="alternate" type="application/atom+xml" title="Campus Tech at UIUC: articles" href="{SITE}articles/feed.xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
@@ -211,25 +213,108 @@ PAGES["past.html"] = page(
     schema=[breadcrumbs(("Home", ""), ("Past", "past.html"))],
 )
 
+# Sites we built, shown on the Cases page as a gallery in the style of the
+# Awwwards collections. Screenshots: `python tools/previews/capture.py --cases`
+# (full page, 960 wide, up to three 4:3 screens; the card scrolls through it on hover).
+CASES = [
+    {
+        "name": "CAACI",
+        "url": "https://caaciorg.com",
+        "img": "assets/cases/caaci.webp",
+        "h": 2160,
+        "tag": "website",
+        "type": "Nonprofit",
+        "cats": "Bilingual site · Memberships · Events",
+        "line": "Chinese American Association of Central Illinois",
+        "alt": "The CAACI website, caaciorg.com: pages in English and 中文, memberships and family plans, event registration and volunteers, a business directory, and a back office where staff edit text and photos without code.",
+    },
+    {
+        "name": "iGuide",
+        "url": "https://iguide.chat",
+        "img": "assets/cases/iguide.webp",
+        "h": 720,
+        "tag": "web app",
+        "type": "Campus",
+        "cats": "AI chat · Dorm guide · English and 中文",
+        "line": "A bilingual campus assistant for UIUC students",
+        "alt": "iGuide, iguide.chat: a bilingual campus assistant for UIUC students with an AI chat and a dorm guide.",
+    },
+    {
+        "name": "Campus Tech",
+        "url": "https://campustech.iguide.chat",
+        "img": "assets/cases/campustech.webp",
+        "h": 2160,
+        "tag": "website",
+        "type": "Student org",
+        "cats": "WebGL · Smooth scroll · Light switch",
+        "line": "This site: neon tubes, a pull-cord light switch, text that moves with the scroll",
+        "alt": "The Campus Tech at UIUC website: neon tubes that follow the cursor, a pull cord that switches to light mode, and text that animates as you scroll.",
+    },
+]
+
+ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>'
+
+
+def case_card(c):
+    link = f'href="{c["url"]}" target="_blank" rel="noopener" data-no-preview'
+    return f"""        <article class="case">
+          <a class="case-shot" {link}>
+            <img src="{c["img"]}" width="960" height="{c["h"]}" alt="{c["alt"]}" loading="lazy" decoding="async">
+            <span class="case-tag">{c["tag"]}</span>
+            <span class="case-hover"><span class="case-type">{c["type"]}</span><span class="case-cat">{c["cats"]}</span>{ARROW}</span>
+          </a>
+          <p class="case-name"><a {link}>{c["name"]}</a> <span>by</span> <img src="assets/favicon-32.png" width="16" height="16" alt=""> <span class="case-by">Campus Tech</span></p>
+          <p class="case-line">{c["line"]}</p>
+        </article>
+"""
+
+
 PAGES["cases.html"] = page(
     "cases.html",
     "Cases · Campus Tech at UIUC",
-    "Websites Campus Tech at UIUC has built for organizations, starting with CAACI, the Chinese American Association of Central Illinois.",
-    """    <section id="cases">
-      <h1 class="page-title">Cases</h1>
-      <p>Websites we have built for organizations. Every RSO can get one.</p>
+    "Websites Campus Tech at UIUC has built: CAACI, the Chinese American Association of Central Illinois; iGuide, a bilingual campus assistant; and this site.",
+    f"""    <section id="cases" class="collection">
+      <p class="curated">Built by <img src="assets/favicon-32.png" width="20" height="20" alt=""> <b>Campus Tech</b></p>
+      <h1 class="page-title collection-title">Cases</h1>
+      <p class="collection-intro">Websites we have built.<br>Every RSO can get one.</p>
+      <p class="collection-count"><b>{len(CASES)}</b> {"item" if len(CASES) == 1 else "items"}.</p>
+      <div class="cases">
+{"".join(case_card(c) for c in CASES)}      </div>
       <ul>
-        <li><a href="https://caaciorg.com" target="_blank" rel="noopener">CAACI</a><span>Chinese American Association of Central Illinois · caaciorg.com</span></li>
-      </ul>
-      <p>Bilingual pages in English and 中文, memberships and family plans, event registration and volunteers, a business directory, and a back office where staff edit text and photos without code.</p>
-      <ul>
-        <li><a href="mailto:"""
-    + EMAIL
-    + """?subject=A%20website%20for%20our%20RSO">Your RSO</a><span>Get a site like this</span></li>
+        <li><a href="mailto:{EMAIL}?subject=A%20website%20for%20our%20RSO">Your RSO</a><span>Get a site like these</span></li>
       </ul>
     </section>""",
     active="cases",
-    schema=[breadcrumbs(("Home", ""), ("Cases", "cases.html"))],
+    schema=[
+        breadcrumbs(("Home", ""), ("Cases", "cases.html")),
+        {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Cases: websites built by Campus Tech at UIUC",
+            "url": SITE + "cases",
+            "about": {"@id": SITE + "#org"},
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": len(CASES),
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": i + 1,
+                        "item": {
+                            "@type": "WebApplication" if c["tag"] == "web app" else "WebSite",
+                            "name": c["name"],
+                            "url": c["url"],
+                            "description": c["alt"],
+                            "image": SITE + c["img"],
+                            "creator": {"@id": SITE + "#org"},
+                            **({"applicationCategory": "EducationalApplication", "operatingSystem": "Web"} if c["tag"] == "web app" else {}),
+                        },
+                    }
+                    for i, c in enumerate(CASES)
+                ],
+            },
+        },
+    ],
 )
 
 PAGES["privacy.html"] = page(
@@ -478,6 +563,11 @@ FAQ = [
     ("Can I suggest a product idea?", "Yes. Anyone can pitch an idea through the Pitch Your Idea form; no full plan or coding is needed."),
     ("How do I contact Campus Tech?", f"Email {EMAIL}."),
     ("Is this an official University of Illinois website?", "No. Campus Tech is a registered student organization, and this is not an official University website."),
+    ("Is Campus Tech part of UIUC Technology Services?", "No. Campus Tech at UIUC is a student organization that builds products for campus life. Technology Services is the University of Illinois IT department; the two are not affiliated."),
+    ("Does Campus Tech build websites for RSOs?", f"Yes. Campus Tech builds websites for registered student organizations and other groups, such as caaciorg.com for the Chinese American Association of Central Illinois. Email {EMAIL} to ask about a site for your RSO."),
+    ("What websites has Campus Tech built?", "CAACI (caaciorg.com), the bilingual website of the Chinese American Association of Central Illinois; iGuide (iguide.chat), a bilingual campus assistant for UIUC students; and campustech.iguide.chat, the Campus Tech website. The Cases page shows all of them."),
+    ("When was Campus Tech founded?", "In 2026. Campus Tech registered as a student organization at UIUC in November 2026."),
+    ("Where is Campus Tech based?", "At the University of Illinois Urbana-Champaign, in Champaign-Urbana, Illinois."),
 ]
 
 faq_html = "".join(f"        <dt>{q}</dt>\n        <dd>{a}</dd>\n" for q, a in FAQ)
@@ -487,7 +577,7 @@ PAGES["faq.html"] = page(
     "Answers about Campus Tech at UIUC: what it is, what it builds, who leads it, and how to join or pitch an idea.",
     f"""    <section class="prose">
       <h1>Frequently asked questions</h1>
-      <p class="meta">Last updated: November 17, 2026</p>
+      <p class="meta">Last updated: November 18, 2026</p>
       <dl>
 {faq_html}      </dl>
       <p>Ready to apply? Read <a href="articles/fall-2026-recruiting.html">how to join</a>, or <a href="{PITCH}" target="_blank" rel="noopener">pitch an idea</a>.</p>
@@ -537,10 +627,46 @@ NOT_INDEXED = {"404.html", "coming-soon.html"}
 
 def sitemap():
     urls = [""] + [pretty(p) for p in PAGES if p not in NOT_INDEXED]
-    rows = "".join(
-        f"  <url><loc>{SITE}{u}</loc><lastmod>{UPDATED}</lastmod></url>\n" for u in urls
+    # Image sitemap entries, so the screenshots and the social card can appear in image search.
+    images = {"": ["assets/og.png", "assets/logo.png"], "cases": [c["img"] for c in CASES]}
+    rows = ""
+    for u in urls:
+        imgs = "".join(f"<image:image><image:loc>{SITE}{i}</image:loc></image:image>" for i in images.get(u, []))
+        rows += f"  <url><loc>{SITE}{u}</loc><lastmod>{SITE_UPDATED}</lastmod>{imgs}</url>\n"
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
+        f"{rows}</urlset>\n"
     )
-    return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{rows}</urlset>\n'
+
+
+def feed():
+    """Atom feed of the articles (linked from every page's head)."""
+    from xml.sax.saxutils import escape
+
+    entries = "".join(
+        f"""  <entry>
+    <title>{escape(a["title"])}</title>
+    <link href="{SITE}articles/{a["slug"]}"/>
+    <id>{SITE}articles/{a["slug"]}</id>
+    <updated>{UPDATED}T12:00:00Z</updated>
+    <summary>{escape(a["desc"])}</summary>
+  </entry>
+"""
+        for a in ARTICLES
+    )
+    return f"""<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Campus Tech at UIUC: articles</title>
+  <subtitle>News and guides from Campus Tech, a student organization at the University of Illinois Urbana-Champaign.</subtitle>
+  <link href="{SITE}articles/"/>
+  <link rel="self" href="{SITE}articles/feed.xml"/>
+  <id>{SITE}articles/</id>
+  <updated>{UPDATED}T12:00:00Z</updated>
+  <author><name>Campus Tech at UIUC</name><email>{EMAIL}</email></author>
+  <icon>{SITE}assets/favicon-192.png</icon>
+{entries}</feed>
+"""
 
 
 def llms_txt():
@@ -554,11 +680,16 @@ def llms_txt():
         "- Officers: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director), Chris Lopez (Treasurer). Advisor: Skylar Chu.",
         f"- Recruiting: Fall 2026 Round 1, roles in programming, design, marketing, business and administration. Application plus short interview. Deadline 11:59 PM CT, Sunday November 29, 2026. Apply: {APPLY}",
         f"- Product ideas from any student: {PITCH}",
+        f"- Websites for RSOs and other groups. Built so far: CAACI (https://caaciorg.com), the bilingual site of the Chinese American Association of Central Illinois; iGuide (https://iguide.chat), a bilingual campus assistant; and this site. Ask: {EMAIL}",
+        "- Founded in 2026; registered as a UIUC student organization in November 2026. Based at the University of Illinois Urbana-Champaign, Champaign-Urbana, Illinois.",
+        "- Not affiliated with UIUC Technology Services (the University's IT department), and this is not an official University website.",
+        "- Also called: Campus Tech at UIUC, Campus Tech @ UIUC, Campus Tech UIUC, Campus Tech Illinois.",
         f"- Contact: {EMAIL}",
+        f"- Articles feed: {SITE}articles/feed.xml",
         "",
         "## Pages",
         f"- [Home]({SITE}): products, recruiting, team and contact",
-        f"- [Cases]({SITE}cases): websites built for organizations, starting with CAACI (https://caaciorg.com)",
+        f"- [Cases]({SITE}cases): websites we built: CAACI (https://caaciorg.com), iGuide (https://iguide.chat) and this site",
         f"- [Past]({SITE}past): past products and presidents",
         f"- [Articles]({SITE}articles/): news and guides",
     ]
@@ -612,16 +743,32 @@ def llms_full():
     return "\n".join(parts) + "\n"
 
 
+def write(out, text):
+    """Write a file, retrying briefly: on Windows a scanner or file watcher can hold a
+    freshly written file for a moment (PermissionError)."""
+    import time
+
+    for attempt in range(20):
+        try:
+            out.write_text(text, encoding="utf-8")
+            return
+        except PermissionError:
+            if attempt == 19:
+                raise
+            time.sleep(0.1)
+
+
 def main():
     for path, html in PAGES.items():
         out = ROOT / path
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(html, encoding="utf-8")
+        write(out, html)
         print("wrote", path)
-    (ROOT / "sitemap.xml").write_text(sitemap(), encoding="utf-8")
-    (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8")
-    (ROOT / "llms-full.txt").write_text(llms_full(), encoding="utf-8")
-    print("wrote sitemap.xml, llms.txt, llms-full.txt")
+    write(ROOT / "sitemap.xml", sitemap())
+    write(ROOT / "llms.txt", llms_txt())
+    write(ROOT / "llms-full.txt", llms_full())
+    write(ROOT / "articles" / "feed.xml", feed())
+    print("wrote sitemap.xml, llms.txt, llms-full.txt, articles/feed.xml")
     # Version the CSS/JS URLs in every page (see tools/stamp_assets.py).
     import runpy
     runpy.run_path(str(ROOT / "tools" / "stamp_assets.py"), run_name="__main__")

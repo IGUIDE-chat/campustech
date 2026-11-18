@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Campus Tech at UIUC: articles</title>
+  <subtitle>News and guides from Campus Tech, a student organization at the University of Illinois Urbana-Champaign.</subtitle>
+  <link href="https://campustech.iguide.chat/articles/"/>
+  <link rel="self" href="https://campustech.iguide.chat/articles/feed.xml"/>
+  <id>https://campustech.iguide.chat/articles/</id>
+  <updated>2026-11-17T12:00:00Z</updated>
+  <author><name>Campus Tech at UIUC</name><email>techadmin.campustech@gmail.com</email></author>
+  <icon>https://campustech.iguide.chat/assets/favicon-192.png</icon>
+  <entry>
+    <title>Introducing Campus Tech at UIUC</title>
+    <link href="https://campustech.iguide.chat/articles/introducing-campus-tech"/>
+    <id>https://campustech.iguide.chat/articles/introducing-campus-tech</id>
+    <updated>2026-11-17T12:00:00Z</updated>
+    <summary>Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.</summary>
+  </entry>
+  <entry>
+    <title>Campus Tech Fall 2026 Round 1 Recruiting: Roles and How to Apply</title>
+    <link href="https://campustech.iguide.chat/articles/fall-2026-recruiting"/>
+    <id>https://campustech.iguide.chat/articles/fall-2026-recruiting</id>
+    <updated>2026-11-17T12:00:00Z</updated>
+    <summary>Campus Tech at UIUC is recruiting for Fall 2026 Round 1: programming, design, marketing, business and administration roles. Applications close November 29, 2026 at 11:59 PM CT.</summary>
+  </entry>
+  <entry>
+    <title>Have an Idea for a Campus Product? Pitch It to Campus Tech</title>
+    <link href="https://campustech.iguide.chat/articles/pitch-your-idea"/>
+    <id>https://campustech.iguide.chat/articles/pitch-your-idea</id>
+    <updated>2026-11-17T12:00:00Z</updated>
+    <summary>Campus Tech at UIUC takes product ideas from any student. Tell us who would use it, what problem it solves and what skills it needs. No full plan or coding required.</summary>
+  </entry>
+</feed>

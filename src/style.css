@@ -198,6 +198,25 @@ html.pinned #smooth-content {
   text-align: left;
 }
 
+/* Optical left edge. The lines share a box edge, but each glyph has its own
+   side bearing, which grows with the font size: CAMPUS's bold C starts 0.039em
+   in (about 3px at 80px), TECH's T 0.004em, the tagline's W 0.032em (Montserrat,
+   measured by pixel scan). Each line moves left by its own bearing, so the ink
+   lines up; the round C then overshoots the T's straight stem by 0.02em, as
+   round letters do, or it still looks indented. (Skylar's review: different
+   sizes, different bearings; and the C has less visual weight on its left.) */
+.hero-left .hero h1 {
+  text-indent: calc(-0.039em - 0.02em);
+}
+
+.hero-left .hero h1 .hero-sub {
+  text-indent: -0.004em;
+}
+
+.hero-left .hero .tagline {
+  text-indent: -0.032em;
+}
+
 /* Toggle between the two layouts, bottom left, only while the hero is on screen. */
 .hero-align {
   position: fixed;
@@ -446,6 +465,184 @@ html:not(.pinned) .nav.under::before {
 .sections a {
   color: var(--ink);
   text-underline-offset: 4px;
+}
+
+/* Cases: a collection page in the style of the Awwwards collections. A small
+   "Built by" line, a huge title, a short intro, then plenty of air; the item
+   count sits left above a grid of 4:3 screenshots with a type tag, and a dark
+   panel rises from the bottom of a screenshot on hover with its categories.
+   Under each: the name, "by" and who built it. */
+.sections section.collection {
+  justify-content: flex-start;
+  gap: 14px;
+  padding-inline: clamp(16px, 5vw, 84px);
+}
+
+.sections .curated {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.sections .curated img {
+  border-radius: 50%;
+}
+
+.sections .curated b {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--faint);
+  text-underline-offset: 4px;
+}
+
+.sections .collection-title {
+  margin: 0;
+  font-size: clamp(64px, 13vw, 170px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.sections .collection-intro {
+  font-size: clamp(16px, 2vw, 18px);
+}
+
+.sections .collection-count {
+  width: min(1400px, 100%);
+  margin-top: clamp(48px, 10vh, 120px);
+  text-align: left;
+  font-size: 14px;
+}
+
+.sections .collection-count b {
+  color: var(--ink);
+}
+
+.sections .cases {
+  width: min(1400px, 100%);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: 30px 16px;
+}
+
+.sections .case {
+  text-align: left;
+}
+
+.sections .case-shot {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  container-type: size;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--page);
+  outline: 1px solid color-mix(in srgb, var(--faint) 45%, transparent);
+  outline-offset: -1px;
+}
+
+/* The screenshot is the whole page (up to three screens): the frame shows its
+   top, and hovering scrolls slowly down through the site, then back. */
+.sections .case-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sections .case-shot:hover img,
+.sections .case-shot:focus-visible img {
+  transform: translateY(calc(-100% + 100cqh));
+  transition: transform 6s cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+.sections .case-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 0 4px;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #fff;
+  background: rgba(13, 13, 18, 0.35);
+}
+
+.sections .case-hover {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  padding: 72px 16px 16px;
+  color: #fff;
+  background: linear-gradient(to top, rgba(13, 13, 18, 0.94) 0%, rgba(13, 13, 18, 0.7) 45%, rgba(13, 13, 18, 0));
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sections .case-type {
+  grid-column: 1;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sections .case-cat {
+  grid-column: 1;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.sections .case-hover svg {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sections .case-shot:hover .case-hover,
+.sections .case-shot:focus-visible .case-hover {
+  opacity: 1;
+  transform: none;
+}
+
+.sections .case-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.sections .case-name a {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sections .case-name img {
+  border-radius: 50%;
+}
+
+.sections .case-name .case-by {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.sections .case-line {
+  font-size: 14px;
 }
 
 /* Small heading inside a section (e.g. Past: Products / Presidents). */

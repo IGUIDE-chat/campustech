@@ -283,8 +283,85 @@ for p in PAGES:
     nav = re.search(r'<nav class="nav".*?</nav>', p.read_text(encoding="utf-8"), re.S)
     if not nav or not re.search(r'href="[^"]*cases\.html"[^>]*>Cases</a>', nav.group(0)):
         fail("cases", f"{rel(p)}: nav has no Cases link")
-if '<a href="./cases.html">RSO websites</a>' not in index:
+rso = re.search(r'<a href="\./cases\.html"([^>]*)>RSO websites</a>', index)
+if not rso:
     fail("cases", "Products: 'RSO websites' does not link to the cases page")
+
+# --- Hover previews: every outbound link on the home and Cases pages has one
+#     (a manifest screenshot or data-preview), and every preview file exists.
+#     'RSO websites' previews the Cases page it links to.
+manifest = json.loads((ROOT / "assets/previews/manifest.json").read_text(encoding="utf-8"))
+for url, img in manifest.items():
+    if not (ROOT / img).exists():
+        fail("previews", f"manifest image missing for {url}: {img}")
+NO_PREVIEW_HOSTS = ("codepen.io",)  # blocks headless browsers; see tools/previews/capture.py
+for name in ("index.html", "cases.html"):
+    html = (ROOT / name).read_text(encoding="utf-8")
+    body = html[html.index("<body") :]
+    for tag in re.findall(r"<a [^>]*>", body):
+        href = re.search(r'href="([^"]+)"', tag)
+        preview = re.search(r'data-preview="([^"]+)"', tag)
+        if preview and not (ROOT / preview.group(1)).exists():
+            fail("previews", f"{name}: data-preview file missing: {preview.group(1)}")
+        if not href or not href.group(1).startswith("http") or preview or "data-no-preview" in tag:
+            continue
+        url = href.group(1).replace("&amp;", "&")
+        if url not in manifest and not any(h in url for h in NO_PREVIEW_HOSTS):
+            fail("previews", f"{name}: no hover preview for {url} (run tools/previews/capture.py)")
+if rso and "campustech-cases" not in rso.group(1):
+    fail("previews", "Products: 'RSO websites' should preview the Cases page it links to")
+# Cases cards show a screenshot of each site (an image, not just text).
+cases_html = cases.read_text(encoding="utf-8") if cases.exists() else ""
+for card in re.findall(r'<article class="case">.*?</article>', cases_html, re.S) or [""]:
+    img = re.search(r'class="case-shot"[^>]*>\s*<img src="([^"]+)"', card)
+    if not img or not (ROOT / img.group(1)).exists():
+        fail("cases", "a Cases card has no screenshot (or its image file is missing)")
+
+# --- SEO / GEO: structured data, feed, sitemap images, crawler access, and the
+#     disambiguation from UIUC Technology Services (which outranked us for
+#     "campus tech at uiuc").
+import xml.etree.ElementTree as ET
+
+def ld_blocks(html):
+    return [json.loads(b) for b in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)]
+
+faq = (ROOT / "faq.html").read_text(encoding="utf-8")
+faq_ld = next((b for b in ld_blocks(faq) if b.get("@type") == "FAQPage"), None)
+if not faq_ld or len(faq_ld["mainEntity"]) != faq.count("<dt>"):
+    fail("geo", "faq.html: FAQPage markup must list every visible question")
+if "Technology Services" not in faq or "Technology Services" not in (ROOT / "llms.txt").read_text(encoding="utf-8"):
+    fail("geo", "FAQ and llms.txt must say Campus Tech is not UIUC Technology Services")
+org = next((b for b in ld_blocks(index) if b.get("@type") == "Organization"), {})
+if "Technology Services" not in org.get("disambiguatingDescription", ""):
+    fail("geo", "index.html: Organization needs a disambiguatingDescription (not UIUC Technology Services)")
+coll = next((b for b in ld_blocks(cases_html) if b.get("@type") == "CollectionPage"), None)
+n_cases = cases_html.count('<article class="case">')
+if not coll or coll["mainEntity"]["numberOfItems"] != n_cases or len(coll["mainEntity"]["itemListElement"]) != n_cases:
+    fail("seo", "cases.html: CollectionPage/ItemList must list every case card")
+try:
+    atom = ET.parse(ROOT / "articles" / "feed.xml").getroot()
+    entries = atom.findall("{http://www.w3.org/2005/Atom}entry")
+    articles = [p for p in (ROOT / "articles").glob("*.html") if p.name != "index.html"]
+    if len(entries) != len(articles):
+        fail("seo", f"articles/feed.xml has {len(entries)} entries for {len(articles)} articles")
+except (ET.ParseError, FileNotFoundError) as error:
+    fail("seo", f"articles/feed.xml is missing or invalid: {error}")
+for p in PAGES:
+    if 'type="application/atom+xml"' not in p.read_text(encoding="utf-8"):
+        fail("seo", f"{rel(p)}: no <link rel=alternate> to the articles feed")
+try:
+    sm = ET.parse(ROOT / "sitemap.xml").getroot()
+    if not sm.findall(".//{http://www.google.com/schemas/sitemap-image/1.1}loc"):
+        fail("seo", "sitemap.xml lists no images")
+except ET.ParseError as error:
+    fail("seo", f"sitemap.xml is not valid XML: {error}")
+robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
+for bot in ("GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "Google-Extended", "Applebot-Extended", "Bingbot"):
+    if f"User-agent: {bot}\nAllow: /" not in robots:
+        fail("geo", f"robots.txt must allow {bot}")
+keys = [p for p in ROOT.glob("*.txt") if re.fullmatch(r"[0-9a-f]{32}\.txt", p.name)]
+if len(keys) != 1 or keys[0].read_text(encoding="utf-8").strip() != keys[0].stem:
+    fail("seo", "IndexNow: expected one key file <key>.txt at the root containing the key")
 
 if failures:
     print(f"{len(failures)} static check(s) failed:\n")

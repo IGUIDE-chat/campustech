@@ -7,11 +7,16 @@ Key facts:
 - Officers: Michael Li (President), George Wang (Tech Lead), Lai Wei (Business Director), Nancy Zhang (Membership Director), Chris Lopez (Treasurer). Advisor: Skylar Chu.
 - Recruiting: Fall 2026 Round 1, roles in programming, design, marketing, business and administration. Application plus short interview. Deadline 11:59 PM CT, Sunday November 29, 2026. Apply: https://docs.google.com/forms/d/e/1FAIpQLSeMlEGqn8lX7ka1y2-GVmQar_kuUYhIb8R-hxnGsNKfClFnXA/viewform
 - Product ideas from any student: https://docs.google.com/forms/d/e/1FAIpQLSeGh0xz6b-Ff0ADiqt3NYOjejxRsqgJLmz76ZMfjiONmeDLEw/viewform
+- Websites for RSOs and other groups. Built so far: CAACI (https://caaciorg.com), the bilingual site of the Chinese American Association of Central Illinois; iGuide (https://iguide.chat), a bilingual campus assistant; and this site. Ask: techadmin.campustech@gmail.com
+- Founded in 2026; registered as a UIUC student organization in November 2026. Based at the University of Illinois Urbana-Champaign, Champaign-Urbana, Illinois.
+- Not affiliated with UIUC Technology Services (the University's IT department), and this is not an official University website.
+- Also called: Campus Tech at UIUC, Campus Tech @ UIUC, Campus Tech UIUC, Campus Tech Illinois.
 - Contact: techadmin.campustech@gmail.com
+- Articles feed: https://campustech.iguide.chat/articles/feed.xml
 
 ## Pages
 - [Home](https://campustech.iguide.chat/): products, recruiting, team and contact
-- [Cases](https://campustech.iguide.chat/cases): websites built for organizations, starting with CAACI (https://caaciorg.com)
+- [Cases](https://campustech.iguide.chat/cases): websites we built: CAACI (https://caaciorg.com), iGuide (https://iguide.chat) and this site
 - [Past](https://campustech.iguide.chat/past): past products and presidents
 - [Articles](https://campustech.iguide.chat/articles/): news and guides
 - [Introducing Campus Tech at UIUC](https://campustech.iguide.chat/articles/introducing-campus-tech): Campus Tech is a student organization at the University of Illinois Urbana-Champaign that builds products for campus life, starting with an AI campus assistant and a dorm guide.

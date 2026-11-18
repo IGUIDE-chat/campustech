@@ -75,8 +75,12 @@ def x_card(url):
 CARDS = {"https://www.linkedin.com/": linkedin_card, "https://x.com/": x_card}
 
 
+# Pages whose outbound links get a hover preview.
+PREVIEW_PAGES = ("index.html", "cases.html")  # links with data-no-preview are skipped by the page
+
+
 def outbound_links():
-    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    html = "".join((ROOT / page).read_text(encoding="utf-8") for page in PREVIEW_PAGES)
     urls = re.findall(r'<a [^>]*href="(https?://[^"]+)"', html)
     seen = []
     for url in urls:
@@ -130,5 +134,69 @@ def main():
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
+# --cases: the full-size screenshots on the Cases page, and a preview of our own
+# Cases page (shown when hovering "RSO websites" on the home page).
+# Full-page screenshots, 960 wide and up to three 4:3 screens tall: the card
+# shows the top and scrolls through the rest on hover.
+CASE_SHOTS = {
+    "https://caaciorg.com": "assets/cases/caaci.webp",
+    "https://iguide.chat": "assets/cases/iguide.webp",
+    "https://campustech.iguide.chat": "assets/cases/campustech.webp",
+}
+PAGE_PREVIEWS = {"cases.html": "assets/previews/campustech-cases.webp"}
+
+
+def capture_cases():
+    import functools, http.server, socketserver, threading
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+    server = socketserver.ThreadingTCPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    with sync_playwright() as pw:
+        try:
+            browser = pw.chromium.launch(channel="chrome")
+        except Exception:
+            browser = pw.chromium.launch()
+        for url, out in CASE_SHOTS.items():
+            page = browser.new_context(viewport={"width": 1280, "height": 960}, locale="en-US", color_scheme="light").new_page()  # 4:3, like the cards
+            page.goto(url, wait_until="load", timeout=45000)
+            page.wait_for_timeout(3500)
+            smooth = page.evaluate("!!document.querySelector('#smooth-wrapper')")
+            if smooth:
+                # Smooth-scrolled pages (ours) draw only the screen in view: stitch
+                # three screens, each after its lines have animated in.
+                shot = Image.new("RGB", (1280, 3 * 960))
+                for i in range(3):
+                    page.evaluate(f"scrollTo(0, {i * 960})")
+                    page.wait_for_timeout(2200)
+                    with Image.open(io.BytesIO(page.screenshot())) as part:
+                        shot.paste(part.convert("RGB"), (0, i * 960))
+            else:
+                # Scroll through once so lazy images and scroll animations render.
+                page.evaluate(
+                    "async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 400)"
+                    " { scrollTo(0, y); await new Promise(r => setTimeout(r, 120)) } scrollTo(0, 0) }"
+                )
+                page.wait_for_timeout(1500)
+                with Image.open(io.BytesIO(page.screenshot(full_page=True))) as im:
+                    shot = im.convert("RGB").crop((0, 0, 1280, min(im.height, 3 * 960)))
+            shot.resize((960, round(shot.height * 960 / 1280)), Image.LANCZOS).save(ROOT / out, "WEBP", quality=78)
+            print(f"ok: {url} -> {out}")
+        for path, out in PAGE_PREVIEWS.items():
+            page = browser.new_context(viewport={"width": 1280, "height": 800}).new_page()
+            page.goto(f"http://127.0.0.1:{server.server_address[1]}/{path}", wait_until="networkidle")
+            page.wait_for_timeout(3500)
+            with Image.open(io.BytesIO(page.screenshot())) as im:
+                im.convert("RGB").resize((640, 400), Image.LANCZOS).save(ROOT / out, "WEBP", quality=80)
+            print(f"ok: {path} -> {out}")
+        browser.close()
+    server.shutdown()
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+
+    capture_cases() if "--cases" in sys.argv else main()
