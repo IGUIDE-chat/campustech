@@ -326,23 +326,53 @@ def haze_shows_while_the_tubes_load(site):
     """Phone, cold load: the red haze was missing for 1-2s after the loading screen went,
     while the tubes' bundle downloaded and drew its first frame. Hold the bundle back:
     the static haze must already show, then fade once the tubes draw. The bundle is fetched
-    once (a <head> preload was tried: it held the loading screen back 1.8s, so it was dropped)."""
+    once (a <head> preload was tried: it held the loading screen back 1.8s, so it was dropped).
+    "Does the haze pop in?": it did, at full strength in the frame the loading screen went,
+    and the tubes then popped in at full brightness. Both are fades now: every frame's opacity
+    is recorded, and each fade must pass through in-between values."""
     ctx = site.browser.new_context(**PHONE)
     held, requests = [], []
     ctx.route("**/vendor/tubes1.min.js*", lambda route: (requests.append(route.request.url), held.append(route)))
+    # One sample per frame: [haze opacity, tubes opacity, loading screen gone, tubes live].
+    ctx.add_init_script("""
+        window.__fade = []
+        const tick = () => {
+          if (document.body) {
+            const bg = document.querySelector('.bg')
+            window.__fade.push([+getComputedStyle(document.body, '::before').opacity,
+              bg ? +getComputedStyle(bg).opacity : 0,
+              document.documentElement.classList.contains('loaded'),
+              document.body.classList.contains('tubes-live')])
+          }
+          requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)""")
     page = ctx.new_page()
     page.goto(site.base + "/", wait_until="domcontentloaded")
-    haze = "() => { const s = getComputedStyle(document.body, '::before'); return [+s.opacity, s.backgroundImage.includes('radial-gradient')] }"
+    painted = "getComputedStyle(document.body, '::before').backgroundImage.includes('radial-gradient')"
+    haze = "+getComputedStyle(document.body, '::before').opacity"
     assert wait_for(page, "() => document.documentElement.classList.contains('loaded')", timeout=10000), "loading screen never went"
-    opacity, painted = page.evaluate(haze)
-    assert painted and opacity > 0.95, f"loading screen gone but no haze while the tubes load (opacity {opacity}, gradient {painted})"
+    assert page.evaluate(painted), "the static haze has no gradient"
+    assert wait_for(page, f"() => {haze} > 0.95", timeout=3000), \
+        f"loading screen gone but no haze while the tubes load (opacity {page.evaluate(haze)})"
     assert not page.evaluate("document.body.classList.contains('tubes-live')"), "tubes-live set before the tubes loaded"
     assert held, "the tubes bundle was never requested"
     for route in held:
         route.continue_()
     assert wait_for(page, "() => document.body.classList.contains('tubes-live')", timeout=30000), "tubes never went live"
-    assert wait_for(page, f"() => ({haze})()[0] < 0.05", timeout=5000), "static haze did not fade under the live tubes"
+    assert wait_for(page, f"() => {haze} < 0.05 && +getComputedStyle(document.querySelector('.bg')).opacity > 0.95", timeout=5000), \
+        "static haze did not hand over to the tubes"
     assert len(requests) == 1, f"tubes bundle fetched {len(requests)} times: {requests}"
+
+    fade = page.evaluate("window.__fade")
+    shown = [h for h, _, loaded, live in fade if loaded and not live]
+    assert shown and shown[0] < 0.5, f"haze at {shown[:1]} in the first frame after the loading screen: it popped in"
+    assert any(0.15 < h < 0.85 for h in shown), "haze jumped to full strength without fading in"
+    assert all(t == 0 for _, t, _, live in fade if not live), "tubes visible before they went live"
+    live = [(h, t) for h, t, _, is_live in fade if is_live]
+    assert live[0][1] < 0.5, f"tubes at opacity {live[0][1]} in their first live frame: they popped in"
+    assert any(0.15 < t < 0.85 for _, t in live), "tubes jumped to full brightness without fading in"
+    assert any(0.15 < h < 0.85 for h, _ in live), "static haze vanished without fading out"
     Site.close(page)
 
 

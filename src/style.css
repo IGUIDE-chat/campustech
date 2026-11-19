@@ -122,10 +122,18 @@ p {
   height: 100vh;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  /* Hidden until the tubes have drawn (body.tubes-live), then faded in while the static
+     haze fades out, so the hand-over is a cross-fade, not a pop. Theme swaps shorten
+     the transition to 0.25s (main.js). */
+  opacity: 0;
+  transition: opacity 1.2s ease;
   /* The bloom pass paints pure black; lighten lets the off-black page show
      through there while the bright tubes stay as they are. */
   mix-blend-mode: lighten;
+}
+
+body.tubes-live .bg {
+  opacity: 1;
 }
 
 #canvas {
@@ -838,11 +846,11 @@ html:not(.pinned) .nav.under::before {
   display: none;
 }
 
-/* Static haze, under the tubes. In dark mode it shows from the first paint and fades
-   out once the tubes have drawn (body.tubes-live): on a cold phone load the tubes'
-   bundle and first frame land a second or more after the loading screen goes, and
-   the page used to sit flat black in between. It stays when the effect cannot run
-   or motion is reduced (body.no-tubes), in both themes. */
+/* Static haze, under the tubes. In dark mode it fades in as the loading screen goes
+   (html.loaded) and fades out once the tubes have drawn (body.tubes-live): on a cold
+   phone load the tubes' bundle and first frame land a second or more after the
+   loading screen goes, and the page used to sit flat black in between. It stays when
+   the effect cannot run or motion is reduced (body.no-tubes), in both themes. */
 body::before {
   content: "";
   position: fixed;
@@ -853,11 +861,19 @@ body::before {
     radial-gradient(60vw 50vh at 25% 25%, rgba(249, 103, 251, 0.22), transparent 70%),
     radial-gradient(50vw 50vh at 75% 35%, rgba(105, 88, 213, 0.28), transparent 70%),
     radial-gradient(60vw 40vh at 50% 85%, rgba(83, 188, 40, 0.16), transparent 70%);
-  transition: opacity 0.9s ease;
+  opacity: 0;
+  transition: opacity 1.2s ease;
 }
 
+html.loaded body:not(.tubes-live)::before {
+  opacity: 1;
+}
+
+/* Hold the haze while the tubes fade in over it (the canvas blends with lighten, so
+   both at once is no brighter than either), then let it go: fading both together
+   dimmed the screen by half for a second mid-swap. */
 body.tubes-live::before {
-  opacity: 0;
+  transition: opacity 1s ease 0.9s;
 }
 
 :root[data-theme="light"] body:not(.no-tubes)::before {

@@ -65,6 +65,7 @@ if (reduceMotion || !canvas) {
       const applyTheme = (animate) => {
         const theme = document.documentElement.dataset.theme
         if (!animate) return app.setTheme(theme)
+        bg.style.transitionDuration = "0.25s" // the stylesheet's 1.2s is for the first fade-in
         bg.style.opacity = "0"
         clearTimeout(swapTimer)
         swapTimer = setTimeout(() => {
